@@ -52,20 +52,4 @@ public class Habitacion {
                 "PrecioPorNoche: " + precioPorNoche + ":\n" +
                 "Estado: " + estado;
     }
-
-    public boolean equals (Object o)
-    {
-        if (this == o)
-            return true;
-
-        if (!(o instanceof Habitacion))
-            return false;
-
-        return ((Habitacion) o).getNumero() == this.getNumero();
-    }
-
-    public int hashCode ()
-    {
-        return getNumero()*35;
-    }
 }
