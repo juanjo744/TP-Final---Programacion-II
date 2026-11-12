@@ -6,11 +6,14 @@ public class Recepcionista extends Usuario{
         super(nombreUsuario, contrasenia);
     }
 
-    public void realizarCheckIn(){
+    public void realizarCheckIn(Reserva reserva) {
 
     }
 
-    public void realizarCheckOut(){
+    public void realizarCheckIn(Habitacion habitacion, Pasajero pasajero){
+
+    }
+    public void realizarCheckOut(Ocupacion ocupacion){
 
     }
 
