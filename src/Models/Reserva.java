@@ -29,51 +29,39 @@ public class Reserva {
     public int getId() {
         return id;
     }
-
     public Habitacion getHabitacionSolicitada() {
         return habitacionSolicitada;
     }
-
     public void setHabitacionSolicitada(Habitacion habitacionSolicitada) {
         this.habitacionSolicitada = habitacionSolicitada;
     }
-
     public Object getTitular() {
         return titular;
     }
-
     public void setTitular(Object titular) {
         this.titular = titular;
     }
-
     public ArrayList<Pasajero> getPasajeros() {
         return pasajeros;
     }
-
     public void setPasajeros(ArrayList<Pasajero> pasajeros) {
         this.pasajeros = pasajeros;
     }
-
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
-
     public void setFechaInicio(LocalDate fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
-
     public LocalDate getFechaFin() {
         return fechaFin;
     }
-
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
-
     public EstadoReserva getEstado() {
         return estado;
     }
-
     public void setEstado(EstadoReserva estado) {
         this.estado = estado;
     }
