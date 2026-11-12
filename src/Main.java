@@ -2,6 +2,10 @@
 /// GESTÓR DE HOTEL
 /// Alumnos: Juan José Sánchez Miller y Franco Miguel Fanelli
 
-void main() {
+public class Main { public static void main(String[] args){
 
+
+
+
+    }
 }
