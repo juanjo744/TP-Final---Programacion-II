@@ -9,13 +9,13 @@ public class Reserva {
     private static int count = 0;
     private int id;
     private Habitacion habitacionSolicitada;
-    private Object titular;
+    private Cliente titular;
     private ArrayList<Pasajero> pasajeros;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private EstadoReserva estado;
 
-    public Reserva(int id, Habitacion habitacionSolicitada, Object titular, ArrayList<Pasajero> pasajeros, LocalDate fechaInicio, LocalDate fechaFin) {
+    public Reserva(int id, Habitacion habitacionSolicitada, Cliente titular, ArrayList<Pasajero> pasajeros, LocalDate fechaInicio, LocalDate fechaFin) {
         count++;
         this.id = count;
         this.habitacionSolicitada = habitacionSolicitada;
@@ -35,10 +35,10 @@ public class Reserva {
     public void setHabitacionSolicitada(Habitacion habitacionSolicitada) {
         this.habitacionSolicitada = habitacionSolicitada;
     }
-    public Object getTitular() {
+    public Cliente getTitular() {
         return titular;
     }
-    public void setTitular(Object titular) {
+    public void setTitular(Cliente titular) {
         this.titular = titular;
     }
     public ArrayList<Pasajero> getPasajeros() {

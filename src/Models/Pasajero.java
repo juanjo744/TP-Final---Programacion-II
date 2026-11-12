@@ -5,9 +5,9 @@ public class Pasajero {
     private String DNI;
     private String origen; // País de prosedencia
     private String domicilio;
-    private Object cliente; // Actualizar cuando Franco cree la clase Cliente
+    private Cliente cliente; //
 
-    public Pasajero(String nombre, String DNI, String origen, String domicilio, Object cliente) {
+    public Pasajero(String nombre, String DNI, String origen, String domicilio, Cliente cliente) {
         this.nombre = nombre;
         this.DNI = DNI;
         this.origen = origen;
@@ -43,11 +43,11 @@ public class Pasajero {
         this.domicilio = domicilio;
     }
 
-    public Object getCliente() {
+    public Cliente getCliente() {
         return cliente;
     }
 
-    public void setCliente(Object cliente) {
+    public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 

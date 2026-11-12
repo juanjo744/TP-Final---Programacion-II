@@ -1,5 +1,7 @@
 package Models;
 
+import Exceptions.LoginException;
+
 public abstract class Usuario {
 
     private String nombreUsuario;
@@ -20,10 +22,6 @@ public abstract class Usuario {
         this.nombreUsuario = nombreUsuario;
     }
 
-    public String getContrasenia() {
-        return contrasenia;
-    }
-
     public void setContrasenia(String contrasenia) {
         this.contrasenia = contrasenia;
     }
@@ -32,19 +30,17 @@ public abstract class Usuario {
         return sesionActiva;
     }
 
-    public void setSesionActiva(boolean sesionActiva) {
+    private void setSesionActiva(boolean sesionActiva) {
         this.sesionActiva = sesionActiva;
     }
 
-    public boolean iniciarSesion(String nombreUsuarioIngresado, String contraseniaIngresada){
+    public void iniciarSesion(String contraseniaIngresada) throws LoginException {
 
-        if (!nombreUsuarioIngresado.equals(nombreUsuario) || !contraseniaIngresada.equals(contrasenia)){
+        if (!contraseniaIngresada.equals(contrasenia)) {
+            throw new LoginException();
 
-            return false;
         }
-
-        setSesionActiva(true);
-        return true;
+        this.setSesionActiva(true);
     }
 
     public boolean cerrarSesion(){
@@ -53,9 +49,7 @@ public abstract class Usuario {
             return false;
         }
 
+        setSesionActiva(false);
         return true;
     }
-
-
-
 }
