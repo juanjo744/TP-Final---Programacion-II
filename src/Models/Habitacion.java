@@ -3,15 +3,14 @@ package Models;
 import Enums.EstadoHabitacion;
 
 public class Habitacion {
-    private static int count = 0;
+
     private int numero;
     private int capacidad;
     private double precioPorNoche;
     private EstadoHabitacion estado;
 
-    public Habitacion(int capacidad, double precioPorNoche, EstadoHabitacion estado) {
-        count++;
-        this.numero = count;
+    public Habitacion(int capacidad, double precioPorNoche, EstadoHabitacion estado, int numero) {
+        this.numero = numero;
         this.capacidad = capacidad;
         this.precioPorNoche = precioPorNoche;
         this.estado = estado;
