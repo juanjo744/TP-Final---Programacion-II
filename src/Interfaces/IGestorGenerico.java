@@ -1,13 +1,13 @@
 package Interfaces;
 
-import Exceptions.HabitacionInvalidaException;
+import Exceptions.ValidacionException;
 
 import java.util.List;
 
 public interface IGestorGenerico<T, ID> {
-    void cargarElemento(T elemento) throws HabitacionInvalidaException;
-    T buscarPorID(ID id) throws HabitacionInvalidaException;
-    void actualizar(T elemento, ID id) throws HabitacionInvalidaException;
+    void cargarElemento(T elemento) throws ValidacionException;
+    T buscarPorID(ID id) throws ValidacionException;
+    void actualizar(T elemento, ID id) throws ValidacionException;
     List<T> listar();
-    void bajar(ID id) throws HabitacionInvalidaException;
+    void bajar(ID id) throws ValidacionException;
 }
