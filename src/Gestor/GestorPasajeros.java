@@ -21,7 +21,7 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     @Override
     public void cargarElemento(Pasajero pasajero) throws VPasajeroInvalidoException {
         if (pasajero == null){
-            throw new VPasajeroInvalidoException("El Pasajero no puede ser nulo.");
+            throw new VPasajeroInvalidoException("Debe ingresar un pasajero válido.");
         }
         if (pasajero.getDNI() == null){
             throw new VPasajeroInvalidoException("El pasajero debe estar identificado por su número de documento.");

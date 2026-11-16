@@ -24,7 +24,7 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     public void cargarElemento(Reserva reserva) throws VReservaInvalidaException {
 
         if (reserva == null){
-            throw new VReservaInvalidaException("La reserva no puede ser nula.");
+            throw new VReservaInvalidaException("Debe ingresar una reserva válida.");
         }
         if (reserva.getHabitacionSolicitada() == null){
             throw new VReservaInvalidaException("Tiene que seleccionar una habitacion para la reserva.");
