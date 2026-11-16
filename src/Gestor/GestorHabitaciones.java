@@ -1,7 +1,7 @@
 package Gestor;
 
 import Enums.EstadoHabitacion;
-import Exceptions.HabitacionInvalidaException;
+import Exceptions.VHabitacionInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
 import Repositorio.HabitacionJDBC;
@@ -18,28 +18,28 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public void cargarElemento(Habitacion habitacion) throws HabitacionInvalidaException {
+    public void cargarElemento(Habitacion habitacion) throws VHabitacionInvalidaException {
 
         if (habitacion == null){
-            throw new HabitacionInvalidaException("La habitacion no puede ser nula.");
+            throw new VHabitacionInvalidaException("La habitacion no puede ser nula.");
         }
 
         if (habitacion.getNumero() <= 0){
-            throw new HabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero.");
+            throw new VHabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero.");
         }
 
         if (habitacion.getCapacidad() <= 0){
-            throw new HabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
+            throw new VHabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
         }
         if (habitacion.getPrecioPorNoche() <= 0){
-            throw new HabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
+            throw new VHabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
         }
         if (habitacion.getEstado() == null){
-            throw new HabitacionInvalidaException("El estado de las habitaciones es obligatorio.");
+            throw new VHabitacionInvalidaException("El estado de las habitaciones es obligatorio.");
         }
 
         if (habitacionJDBC.buscarPorID(habitacion.getNumero()) != null){
-            throw new HabitacionInvalidaException("El numero ya esta registrado.");
+            throw new VHabitacionInvalidaException("El numero ya esta registrado.");
         }
 
         habitacionJDBC.guardar(habitacion);
@@ -49,41 +49,41 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
 
     @Override
-    public Habitacion buscarPorID(Integer id) throws HabitacionInvalidaException{
+    public Habitacion buscarPorID(Integer id) throws VHabitacionInvalidaException {
 
         if (id == null){
-            throw new HabitacionInvalidaException("Debe ingresar un numero de habitacion.");
+            throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");
         }
         if (id <= 0){
-            throw new HabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
+            throw new VHabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
         }
 
         return habitacionJDBC.buscarPorID(id);
     }
 
     @Override
-    public void actualizar(Habitacion habitacion, Integer id) throws HabitacionInvalidaException{
+    public void actualizar(Habitacion habitacion, Integer id) throws VHabitacionInvalidaException {
 
         if (id == null){
-            throw new HabitacionInvalidaException("Debe ingresar un numero de habitacion.");
+            throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");
         }
         if (id <= 0){
-            throw new HabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
+            throw new VHabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
         }
         if (habitacion == null){
-            throw new HabitacionInvalidaException("La habitacion no puede ser nula.");
+            throw new VHabitacionInvalidaException("La habitacion no puede ser nula.");
         }
         if (habitacion.getCapacidad() <= 0){
-            throw new HabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
+            throw new VHabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
         }
         if (habitacion.getPrecioPorNoche() <= 0){
-            throw new HabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
+            throw new VHabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
         }
         if (habitacion.getEstado() == null){
-            throw new HabitacionInvalidaException("El estado de las habitaciones es obligatorio.");
+            throw new VHabitacionInvalidaException("El estado de las habitaciones es obligatorio.");
         }
         if (habitacionJDBC.buscarPorID(id) == null){
-            throw new HabitacionInvalidaException("No existe una habitacion con ese numero.");
+            throw new VHabitacionInvalidaException("No existe una habitacion con ese numero.");
         }
 
         habitacionJDBC.actualizar(habitacion, id);
@@ -128,16 +128,16 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public void bajar(Integer id) throws HabitacionInvalidaException{
+    public void bajar(Integer id) throws VHabitacionInvalidaException {
 
         if (id == null){
-            throw new HabitacionInvalidaException("Debe ingresar un numero de habitacion.");
+            throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");
         }
         if (id <= 0){
-            throw new HabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
+            throw new VHabitacionInvalidaException("El numero de la habitacion tiene que ser mayor que cero");
         }
         if (habitacionJDBC.buscarPorID(id) == null){
-            throw new HabitacionInvalidaException("No existe una habitacion con este numero.");
+            throw new VHabitacionInvalidaException("No existe una habitacion con este numero.");
         }
 
         // Mas adelante agregar una validacion para que no se elimen habitacion con reservas pendientes o confirmadas.

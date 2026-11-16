@@ -7,7 +7,6 @@ import java.util.List;
 
 public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
 
-
     @Override
     public void guardar(Habitacion elemento) {
 

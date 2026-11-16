@@ -1,7 +1,7 @@
 package Gestor;
 
 import Enums.EstadoReserva;
-import Exceptions.ReservaInvalidaException;
+import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
 import Models.Reserva;
@@ -20,36 +20,35 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
         this.habitacionJDBC = habitacionJDBC;
     }
 
-
     @Override
-    public void cargarElemento(Reserva reserva) throws ReservaInvalidaException {
+    public void cargarElemento(Reserva reserva) throws VReservaInvalidaException {
 
         if (reserva == null){
-            throw new ReservaInvalidaException("La reserva no puede ser nula.");
+            throw new VReservaInvalidaException("La reserva no puede ser nula.");
         }
         if (reserva.getHabitacionSolicitada() == null){
-            throw new ReservaInvalidaException("Tiene que seleccionar una habitacion para la reserva.");
+            throw new VReservaInvalidaException("Tiene que seleccionar una habitacion para la reserva.");
         }
         if (reserva.getTitular() == null){
-            throw new ReservaInvalidaException("La reserva tiene que tener un titular.");
+            throw new VReservaInvalidaException("La reserva tiene que tener un titular.");
         }
         if (reserva.getFechaInicio() == null || reserva.getFechaFin() == null){
-            throw new ReservaInvalidaException("Tiene que indicar la fecha de inicio y fin de la reserva");
+            throw new VReservaInvalidaException("Tiene que indicar la fecha de inicio y fin de la reserva");
         }
         if (!reserva.getFechaFin().isAfter(reserva.getFechaInicio())){
-            throw new ReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
+            throw new VReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
         }
         if (reserva.getPasajeros() == null || reserva.getPasajeros().isEmpty()){
-            throw new ReservaInvalidaException("Tiene que indicar al menos un pasajero.");
+            throw new VReservaInvalidaException("Tiene que indicar al menos un pasajero.");
         }
 
         Habitacion habitacionEncontrada = habitacionJDBC.buscarPorID(reserva.getHabitacionSolicitada().getNumero());
 
         if (habitacionEncontrada == null){
-            throw new ReservaInvalidaException("La habitacion no fue encontrada");
+            throw new VReservaInvalidaException("La habitacion no fue encontrada");
         }
         if (reserva.getPasajeros().size() > habitacionEncontrada.getCapacidad()){
-            throw new ReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
+            throw new VReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
         }
 
         // PENDIENTE: Antes de guardar, comprobar que la habitacion no tenga reservas pendientes o confirmadas
@@ -60,63 +59,63 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public Reserva buscarPorID(Integer id) throws ReservaInvalidaException {
+    public Reserva buscarPorID(Integer id) throws VReservaInvalidaException {
 
         if (id == null){
-            throw new ReservaInvalidaException("Debe ingresar un numero de reserva");
+            throw new VReservaInvalidaException("Debe ingresar un numero de reserva");
         }
         if (id <= 0){
-            throw new ReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
+            throw new VReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
         }
 
         return reservaJDBC.buscarPorID(id);
     }
 
     @Override
-    public void actualizar(Reserva reserva, Integer id) throws ReservaInvalidaException {
+    public void actualizar(Reserva reserva, Integer id) throws VReservaInvalidaException {
 
         if (id == null){
-            throw new ReservaInvalidaException("Debe ingresar un numero de reserva");
+            throw new VReservaInvalidaException("Debe ingresar un numero de reserva");
         }
         if (id <= 0){
-            throw new ReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
+            throw new VReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
         }
 
         Reserva reservaEncontrada = reservaJDBC.buscarPorID(id);
 
         if (reservaEncontrada == null){
-            throw new ReservaInvalidaException("No existe una reserva con ese numero");
+            throw new VReservaInvalidaException("No existe una reserva con ese numero");
         }
         if (reservaEncontrada.getEstado() == EstadoReserva.CANCELADA || reservaEncontrada.getEstado() == EstadoReserva.FINALIZADA){
-            throw new ReservaInvalidaException("No se puede modificar una reserva cancelada o finalizada");
+            throw new VReservaInvalidaException("No se puede modificar una reserva cancelada o finalizada");
         }
 
         if (reserva == null){
-            throw new ReservaInvalidaException("La reserva no puede ser nula.");
+            throw new VReservaInvalidaException("La reserva no puede ser nula.");
         }
         if (reserva.getHabitacionSolicitada() == null){
-            throw new ReservaInvalidaException("Tiene que seleccionar una habitacion para la reserva.");
+            throw new VReservaInvalidaException("Tiene que seleccionar una habitacion para la reserva.");
         }
         if (reserva.getTitular() == null){
-            throw new ReservaInvalidaException("La reserva tiene que tener un titular.");
+            throw new VReservaInvalidaException("La reserva tiene que tener un titular.");
         }
         if (reserva.getFechaInicio() == null || reserva.getFechaFin() == null){
-            throw new ReservaInvalidaException("Tiene que indicar la fecha de inicio y fin de la reserva");
+            throw new VReservaInvalidaException("Tiene que indicar la fecha de inicio y fin de la reserva");
         }
         if (!reserva.getFechaFin().isAfter(reserva.getFechaInicio())){
-            throw new ReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
+            throw new VReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
         }
         if (reserva.getPasajeros() == null || reserva.getPasajeros().isEmpty()){
-            throw new ReservaInvalidaException("Tiene que indicar al menos un pasajero.");
+            throw new VReservaInvalidaException("Tiene que indicar al menos un pasajero.");
         }
 
         Habitacion habitacionEncontrada = habitacionJDBC.buscarPorID(reserva.getHabitacionSolicitada().getNumero());
 
         if (habitacionEncontrada == null){
-            throw new ReservaInvalidaException("La habitacion no fue encontrada");
+            throw new VReservaInvalidaException("La habitacion no fue encontrada");
         }
         if (reserva.getPasajeros().size() > habitacionEncontrada.getCapacidad()){
-            throw new ReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
+            throw new VReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
         }
 
         // PENDIENTE: Comprobar con consultas JDBC que no haya otras reservas pendientes o confirmadas
@@ -133,23 +132,23 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public void bajar(Integer id) throws ReservaInvalidaException {
+    public void bajar(Integer id) throws VReservaInvalidaException {
 
         if (id == null){
-            throw new ReservaInvalidaException("Debe ingresar un numero de reserva");
+            throw new VReservaInvalidaException("Debe ingresar un numero de reserva");
         }
         if (id <= 0){
-            throw new ReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
+            throw new VReservaInvalidaException("El numero de reserva tiene que ser mayor a cero");
         }
 
         Reserva reservaEncontrada = reservaJDBC.buscarPorID(id);
 
         if (reservaEncontrada == null){
-            throw new ReservaInvalidaException("La reserva no fue encontrada.");
+            throw new VReservaInvalidaException("La reserva no fue encontrada.");
         }
 
         if (reservaEncontrada.getEstado() == EstadoReserva.CANCELADA || reservaEncontrada.getEstado() == EstadoReserva.FINALIZADA){
-            throw new ReservaInvalidaException("La reserva no se pudo cancelar ya que esta cancelada o finalizada");
+            throw new VReservaInvalidaException("La reserva no se pudo cancelar ya que esta cancelada o finalizada");
         }
 
         reservaEncontrada.setEstado(EstadoReserva.CANCELADA);
