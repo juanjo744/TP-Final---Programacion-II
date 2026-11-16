@@ -5,22 +5,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private String url;
-    private String username;
-    private String password;
+    private static String url = "jdbc:mysql://ip:puerto/midb";
+    private static String username = "use";
+    private static String password = "psw";
     private static Connection conn;
 
-    public Connection crearConexion()
+    public Connection crearConexion() throws SQLException
     {
-        url = "jdbc:mysql://ip:puerto/midb";
-        username = "use";
-        password = "psw";
-
         try {
             conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException ex)
         {
-            System.out.printf(ex.getMessage());
+            throw new SQLException("Error al conectar con la base de datos", ex);
         }
 
         return conn;
