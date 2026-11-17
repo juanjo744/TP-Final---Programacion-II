@@ -25,6 +25,13 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             "FOREIGN KEY (habitacionSolicitada) REFERENCES Habitacion(numero), " +
             "FOREIGN KEY (titular) REFERENCES Cliente(nombreUsuario)" +
             ")";
+    private static String sqlReservaPasajero = "CREATE TABLE IF NOT EXISTS ReservaPasajero (" +
+            "reservaId INT NOT NULL," +
+            "pasajeroDni VARCHAR(15) NOT NULL," +
+            "PRIMARY KEY (reservaId, pasajeroDni)," +
+            "FOREIGN KEY (reservaId) REFERENCES Reserva(id)," +
+            "FOREIGN KEY (pasajeroDni) REFERENCES Pasajero(DNI)" +
+            ");";
 
     @Override
     public void crearTabla() throws JDBCException {
