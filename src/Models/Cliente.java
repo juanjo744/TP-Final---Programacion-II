@@ -1,5 +1,6 @@
 package Models;
 
+import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.VReservaInvalidaException;
 import Gestor.GestorReservas;
@@ -9,7 +10,7 @@ public class Cliente extends Usuario {
     private GestorReservas gestorReservas;
 
     public Cliente(String nombreUsuario, String contrasenia, GestorReservas gestorReservas) {
-        super(nombreUsuario, contrasenia);
+        super(nombreUsuario, contrasenia, TipoUsuario.CLIENTE);
         this.gestorReservas = gestorReservas;
     }
 

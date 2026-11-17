@@ -54,8 +54,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
     @Override
     public void guardar(Reserva reserva) throws JDBCException {
         if (reserva.getId() != 0) {
-            throw new JDBCException(
-                    "La reserva ya tiene un ID asignado.");
+            throw new JDBCException("La reserva ya tiene un ID asignado.");
         }
 
         String sqlGuardarReserva = """
@@ -98,8 +97,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
 
                     try (ResultSet claves = consulta.getGeneratedKeys()) {
                         if (!claves.next()) {
-                            throw new SQLException(
-                                    "No se pudo recuperar el ID de la reserva.");
+                            throw new SQLException("No se pudo recuperar el ID de la reserva.");
                         }
 
                         idGenerado = claves.getInt(1);
@@ -130,8 +128,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo guardar la reserva y sus pasajeros.", ex);
+            throw new JDBCException("No se pudo guardar la reserva y sus pasajeros.", ex);
         }
     }
 
@@ -162,8 +159,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
                         resultado.getInt("habitacionSolicitada"));
 
                 if (habitacion == null) {
-                    throw new JDBCException(
-                            "No se encontró la habitación de la reserva.");
+                    throw new JDBCException("No se encontró la habitación de la reserva.");
                 }
 
                 UsuarioJDBC usuarioJDBC = new UsuarioJDBC();
@@ -171,8 +167,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
                         resultado.getString("titular"));
 
                 if (!(usuario instanceof Cliente)) {
-                    throw new JDBCException(
-                            "No se pudo recuperar el cliente titular.");
+                    throw new JDBCException("No se pudo recuperar el cliente titular.");
                 }
 
                 Cliente titular = (Cliente) usuario;
@@ -191,8 +186,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
                                     filas.getString("pasajeroDni"));
 
                             if (pasajero == null) {
-                                throw new JDBCException(
-                                        "No se pudo recuperar un pasajero de la reserva.");
+                                throw new JDBCException("No se pudo recuperar un pasajero de la reserva.");
                             }
 
                             pasajeros.add(pasajero);
@@ -212,8 +206,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo buscar la reserva.", ex);
+            throw new JDBCException("No se pudo buscar la reserva.", ex);
         }
     }
 
@@ -234,8 +227,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudieron listar las reservas.", ex);
+            throw new JDBCException("No se pudieron listar las reservas.", ex);
         }
 
         for (Integer id : ids) {
@@ -285,8 +277,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
 
                     try (ResultSet resultado = consulta.executeQuery()) {
                         if (!resultado.next()) {
-                            throw new SQLException(
-                                    "No existe una reserva con ese ID.");
+                            throw new SQLException("No existe una reserva con ese ID.");
                         }
                     }
                 }
@@ -341,8 +332,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo actualizar la reserva y sus pasajeros.", ex);
+            throw new JDBCException("No se pudo actualizar la reserva y sus pasajeros.", ex);
         }
     }
 
@@ -373,8 +363,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
                     consulta.setInt(1, id);
 
                     if (consulta.executeUpdate() != 1) {
-                        throw new SQLException(
-                                "No existe una reserva con ese ID.");
+                        throw new SQLException("No existe una reserva con ese ID.");
                     }
                 }
 
@@ -391,8 +380,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo eliminar la reserva.", ex);
+            throw new JDBCException("No se pudo eliminar la reserva.", ex);
         }
     }
 }

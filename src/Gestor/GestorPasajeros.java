@@ -46,7 +46,7 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     }
 
     @Override
-    public Pasajero buscarPorID(String DNI) throws VPasajeroInvalidoException{
+    public Pasajero buscarPorID(String DNI) throws VPasajeroInvalidoException, JDBCException {
         if (DNI == null)
             throw new VPasajeroInvalidoException("Debe ingresar un número de documento");
 
@@ -57,7 +57,7 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     }
 
     @Override
-    public void actualizar(Pasajero pasajero, String DNI) throws VPasajeroInvalidoException{
+    public void actualizar(Pasajero pasajero, String DNI) throws VPasajeroInvalidoException, JDBCException {
         if (pasajero == null){
             throw new VPasajeroInvalidoException("El Pasajero no puede ser nulo.");
         }

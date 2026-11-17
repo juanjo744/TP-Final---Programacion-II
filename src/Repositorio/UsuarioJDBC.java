@@ -4,6 +4,8 @@ import Connection.DBConnection;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Gestor.GestorHabitaciones;
+import Gestor.GestorOcupaciones;
+import Gestor.GestorPasajeros;
 import Gestor.GestorReservas;
 import Interfaces.IHotelJDBC;
 import Models.*;
@@ -17,6 +19,8 @@ import java.util.List;
 public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
     private GestorReservas gestorReservas;
     private GestorHabitaciones gestorHabitaciones;
+    private GestorOcupaciones gestorOcupaciones;
+    private GestorPasajeros gestorPasajeros;
 
     private static String sqlUsuario = "CREATE TABLE IF NOT EXISTS Usuario (" +
             "nombreUsuario VARCHAR(50) PRIMARY KEY, " +
@@ -81,10 +85,10 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
                             return new Cliente(nombre, null, gestorReservas);
 
                         case ADMINISTRADOR:
-                            return new Administrador(nombre, null);
+                            return new Administrador(nombre, null, TipoUsuario.ADMINISTRADOR);
 
                         case RECEPCIONISTA:
-                            return new Recepcionista(nombre, null);
+                            return new Recepcionista(nombre, null, gestorHabitaciones, gestorReservas, gestorOcupaciones, gestorPasajeros);
 
                         default:
                             throw new JDBCException("Tipo de usuario desconocido.");
