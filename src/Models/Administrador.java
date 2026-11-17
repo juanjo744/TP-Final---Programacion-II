@@ -1,9 +1,12 @@
 package Models;
 
+import Connection.DBBackup;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.ValidacionException;
 import Gestor.GestorUsuarios;
+
+import java.io.IOException;
 
 public class Administrador extends Usuario {
 
@@ -15,13 +18,17 @@ public class Administrador extends Usuario {
     }
 
     public void crearUsuario(Usuario usuario) throws ValidacionException, JDBCException {
-
         gestorUsuarios.cargarElemento(usuario);
     }
 
-    public void crearBackup(){
-
+    public void asignarPermisos(Usuario usuario, TipoUsuario nuevoTipo) throws ValidacionException, JDBCException
+    {
+        gestorUsuarios.actualizarPermisos(usuario, nuevoTipo);
     }
 
+    public void crearBackup() throws IOException, InterruptedException {
+        DBBackup dbBackup = new DBBackup();
 
+        dbBackup.crearBackup();
+    }
 }

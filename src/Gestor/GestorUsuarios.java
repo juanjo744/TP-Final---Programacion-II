@@ -1,5 +1,6 @@
 package Gestor;
 
+import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.ValidacionException;
 import Interfaces.IGestorGenerico;
@@ -84,6 +85,33 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
         }
 
         usuarioJDBC.actualizar(usuario, nombreUsuario);
+    }
+
+    public void actualizarPermisos(Usuario usuario, TipoUsuario nuevoTipo)  throws ValidacionException, JDBCException
+    {
+        if (nuevoTipo == null) {
+            throw new ValidacionException("El tipo de usuario no puede ser nulo.");
+        }
+
+        if (usuario == null) {
+            throw new ValidacionException("El usuario no puede ser nulo.");
+        }
+
+        if (!usuario.tieneContrasenia()) {
+            throw new ValidacionException("Debe indicar una contraseña.");
+        }
+
+        Usuario usuarioEncontrado = usuarioJDBC.buscarPorID(usuario.getNombreUsuario());
+
+        if (usuarioEncontrado == null) {
+            throw new ValidacionException("No existe un usuario con ese nombre.");
+        }
+
+        if (usuario.getTipo() != usuarioEncontrado.getTipo()) {
+            throw new ValidacionException("El cambio de tipo de usuario debe realizarse por separado.");
+        }
+
+        usuario.setTipo(nuevoTipo);
     }
 
     @Override
