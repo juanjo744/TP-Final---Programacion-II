@@ -12,6 +12,7 @@ import Models.Recepcionista;
 import Models.Usuario;
 import Repositorio.*;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main { public static void main(String[] args){
@@ -65,7 +66,7 @@ public class Main { public static void main(String[] args){
             {
                 System.out.println("Menu: ADMINISTRADOR");
                 System.out.println("1. Crear usuario.");
-                System.out.println("2. Asignar permisos a usuario.");
+                System.out.println("2. Reasignar permisos a usuario.");
                 System.out.println("3. Ver usuarios.");
                 System.out.println("4. Actualizar usuario.");
                 System.out.println("5. Eliminar usuario.");
@@ -91,6 +92,7 @@ public class Main { public static void main(String[] args){
                         {
                             case 1:
                             {
+                                System.out.println("------------CREACIÓN DE USUARIO------------");
                                 Usuario usuario1 = new Administrador(nombreUsuarioN, contraseniaN, gestorUsuarios);
                                 gestorUsuarios.cargarElemento(usuario1);
 
@@ -115,7 +117,10 @@ public class Main { public static void main(String[] args){
                     }
                     case 2:
                     {
-
+                        scanner.nextLine();
+                        System.out.println("------------REASIGNAR PERMISOS------------");
+                        System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                        System.out.println("Elija un usuario para modificar su tipo.");
                     }
                 }
 

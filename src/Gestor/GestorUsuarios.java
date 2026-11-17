@@ -119,6 +119,17 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
         return usuarioJDBC.listarTodos();
     }
 
+    public String listarString(List<Usuario> usuarioList) throws JDBCException {
+        StringBuilder sb = new StringBuilder("LISTA DE USUARIOS:\n");
+
+        for (Usuario u : usuarioList)
+        {
+            sb.append(u.toString());
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public void bajar(String nombreUsuario) throws ValidacionException, JDBCException {
 
