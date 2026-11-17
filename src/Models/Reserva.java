@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Reserva {
-    private static int count = 0;
     private int id;
     private Habitacion habitacionSolicitada;
     private Cliente titular;
@@ -15,9 +14,16 @@ public class Reserva {
     private LocalDate fechaFin;
     private EstadoReserva estado;
 
-    public Reserva(int id, Habitacion habitacionSolicitada, Cliente titular, ArrayList<Pasajero> pasajeros, LocalDate fechaInicio, LocalDate fechaFin) {
-        count++;
-        this.id = count;
+    public Reserva(int id, Habitacion habitacionSolicitada, Cliente titular, ArrayList<Pasajero> pasajeros, LocalDate fechaInicio, LocalDate fechaFin, EstadoReserva estado) {
+        this.id = id;
+        this.habitacionSolicitada = habitacionSolicitada;
+        this.titular = titular;
+        this.pasajeros = pasajeros;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.estado = estado;
+    }
+    public Reserva(Habitacion habitacionSolicitada, Cliente titular, ArrayList<Pasajero> pasajeros, LocalDate fechaInicio, LocalDate fechaFin) {
         this.habitacionSolicitada = habitacionSolicitada;
         this.titular = titular;
         this.pasajeros = pasajeros;
@@ -76,6 +82,20 @@ public class Reserva {
                 "Fecha inicio: " + fechaInicio + ":\n" +
                 "Fecha fin: " + fechaFin + ":\n" +
                 "Estado: " + estado + ":\n";
+    }
+
+    public void asignarId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(
+                    "El ID debe ser mayor que cero.");
+        }
+
+        if (this.id != 0) {
+            throw new IllegalStateException(
+                    "La reserva ya tiene un ID asignado.");
+        }
+
+        this.id = id;
     }
 
     public void confirmarReserva (Reserva r)

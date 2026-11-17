@@ -60,7 +60,7 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public Reserva buscarPorID(Integer id) throws VReservaInvalidaException {
+    public Reserva buscarPorID(Integer id) throws VReservaInvalidaException, JDBCException {
 
         if (id == null){
             throw new VReservaInvalidaException("Debe ingresar un numero de reserva");
@@ -128,12 +128,12 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public List<Reserva> listar() {
+    public List<Reserva> listar() throws JDBCException {
         return reservaJDBC.listarTodos();
     }
 
     @Override
-    public void bajar(Integer id) throws VReservaInvalidaException {
+    public void bajar(Integer id) throws VReservaInvalidaException, JDBCException {
 
         if (id == null){
             throw new VReservaInvalidaException("Debe ingresar un numero de reserva");

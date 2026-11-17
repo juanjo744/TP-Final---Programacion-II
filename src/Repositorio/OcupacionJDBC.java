@@ -89,8 +89,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
 
                     try (ResultSet claves = consulta.getGeneratedKeys()) {
                         if (!claves.next()) {
-                            throw new SQLException(
-                                    "No se pudo recuperar el ID de la ocupación.");
+                            throw new SQLException("No se pudo recuperar el ID de la ocupación.");
                         }
 
                         idGenerado = claves.getInt(1);
@@ -121,8 +120,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo guardar la ocupación y sus pasajeros.", ex);
+            throw new JDBCException("No se pudo guardar la ocupación y sus pasajeros.", ex);
         }
     }
 
@@ -154,8 +152,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
                         resultado.getInt("habitacionReservada"));
 
                 if (habitacion == null) {
-                    throw new JDBCException(
-                            "No se encontró la habitación de la ocupación.");
+                    throw new JDBCException("No se encontró la habitación de la ocupación.");
                 }
 
                 ArrayList<Pasajero> pasajeros = new ArrayList<>();
@@ -172,8 +169,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
                                     filas.getString("pasajeroDni"));
 
                             if (pasajero == null) {
-                                throw new JDBCException(
-                                        "No se pudo recuperar un pasajero de la ocupación.");
+                                throw new JDBCException("No se pudo recuperar un pasajero de la ocupación.");
                             }
 
                             pasajeros.add(pasajero);
@@ -192,8 +188,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo buscar la ocupación.", ex);
+            throw new JDBCException("No se pudo buscar la ocupación.", ex);
         }
     }
 
@@ -214,8 +209,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudieron listar las ocupaciones.", ex);
+            throw new JDBCException("No se pudieron listar las ocupaciones.", ex);
         }
 
         for (Integer id : ids) {
@@ -264,8 +258,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
 
                     try (ResultSet resultado = consulta.executeQuery()) {
                         if (!resultado.next()) {
-                            throw new SQLException(
-                                    "No existe una ocupación con ese ID.");
+                            throw new SQLException("No existe una ocupación con ese ID.");
                         }
                     }
                 }
@@ -318,8 +311,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo actualizar la ocupación y sus pasajeros.", ex);
+            throw new JDBCException("No se pudo actualizar la ocupación y sus pasajeros.", ex);
         }
     }
 
@@ -350,8 +342,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
                     consulta.setInt(1, id);
 
                     if (consulta.executeUpdate() != 1) {
-                        throw new SQLException(
-                                "No existe una ocupación con ese ID.");
+                        throw new SQLException("No existe una ocupación con ese ID.");
                     }
                 }
 
@@ -368,8 +359,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException ex) {
-            throw new JDBCException(
-                    "No se pudo eliminar la ocupación.", ex);
+            throw new JDBCException("No se pudo eliminar la ocupación.", ex);
         }
     }
 }
