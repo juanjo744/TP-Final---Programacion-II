@@ -57,7 +57,7 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
     @Override
     public Habitacion buscarPorID(Integer numero) throws JDBCException {
         DBConnection db = new DBConnection();
-        Habitacion habitacionBuscada = null;
+        Habitacion habitacionBuscada;
 
         try (Connection conn = db.crearConexion();
              PreparedStatement ps = conn.prepareStatement("SELECT * FROM Habitacion WHERE numero = ?");
@@ -88,15 +88,15 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
         DBConnection db = new DBConnection();
 
         try (Connection conn = db.crearConexion();
-             PreparedStatement consulta = conn.prepareStatement(sql);
-             ResultSet resultado = consulta.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (resultado.next()) {
+            while (rs.next()) {
                 Habitacion habitacion = new Habitacion(
-                        resultado.getInt("numero"),
-                        resultado.getInt("capacidad"),
-                        resultado.getDouble("precioPorNoche"),
-                        EstadoHabitacion.valueOf(resultado.getString("estado"))
+                        rs.getInt("numero"),
+                        rs.getInt("capacidad"),
+                        rs.getDouble("precioPorNoche"),
+                        EstadoHabitacion.valueOf(rs.getString("estado"))
                 );
 
                 habitaciones.add(habitacion);
@@ -121,14 +121,14 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
         DBConnection db = new DBConnection();
 
         try (Connection conn = db.crearConexion();
-             PreparedStatement consulta = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            consulta.setInt(1, habitacion.getCapacidad());
-            consulta.setDouble(2, habitacion.getPrecioPorNoche());
-            consulta.setString(3, habitacion.getEstado().name());
-            consulta.setInt(4, id);
+            ps.setInt(1, habitacion.getCapacidad());
+            ps.setDouble(2, habitacion.getPrecioPorNoche());
+            ps.setString(3, habitacion.getEstado().name());
+            ps.setInt(4, id);
 
-            consulta.executeUpdate();
+            ps.executeUpdate();
 
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo actualizar la habitación.");
@@ -142,10 +142,10 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
         DBConnection db = new DBConnection();
 
         try (Connection conn = db.crearConexion();
-             PreparedStatement consulta = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            consulta.setInt(1, id);
-            consulta.executeUpdate();
+            ps.setInt(1, id);
+            ps.executeUpdate();
 
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo eliminar la habitación.");

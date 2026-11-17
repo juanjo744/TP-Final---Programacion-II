@@ -3,6 +3,8 @@ package Repositorio;
 import Connection.DBConnection;
 import Exceptions.JDBCException;
 import Interfaces.IHotelJDBC;
+import Models.Cliente;
+import Models.Usuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,6 +38,10 @@ public class UsuarioJDBC implements IHotelJDBC {
 
     @Override
     public Object buscarPorID(Object object) {
+        return null;
+    }
+
+    public Cliente buscarClientePorNombreUsuario(String nombreUsuario) {
         return null;
     }
 

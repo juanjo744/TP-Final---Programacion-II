@@ -1,5 +1,6 @@
 package Gestor;
 
+import Exceptions.JDBCException;
 import Exceptions.VPasajeroInvalidoException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
@@ -19,7 +20,7 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     }
 
     @Override
-    public void cargarElemento(Pasajero pasajero) throws VPasajeroInvalidoException {
+    public void cargarElemento(Pasajero pasajero) throws VPasajeroInvalidoException, JDBCException {
         if (pasajero == null){
             throw new VPasajeroInvalidoException("Debe ingresar un pasajero válido.");
         }
@@ -91,7 +92,7 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     }
 
     @Override
-    public void bajar(String DNI) throws VPasajeroInvalidoException{
+    public void bajar(String DNI) throws VPasajeroInvalidoException, JDBCException {
         if (DNI == null)
             throw new VPasajeroInvalidoException("Debe ingresar un número de documento");
 
