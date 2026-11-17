@@ -75,15 +75,16 @@ public class Main { public static void main(String[] args){
                 switch (opc) {
                     case 1:
                     {
+                        scanner.nextLine();
                         System.out.println("Defina los datos de nuevo usuario...");
                         System.out.println("Nombre de usuario: ");
                         String nombreUsuarioN = scanner.nextLine();
                         System.out.println("Contraseña: ");
                         String contraseniaN = scanner.nextLine();
                         System.out.println("Defina el tipo de usuario." +
-                                "1 - Administrador." +
-                                "2 - Recepcionista." +
-                                "3 - Cliente.");
+                                "1 - Administrador.\n" +
+                                "2 - Recepcionista.\n" +
+                                "3 - Cliente.\n");
                         int opcUsuario = scanner.nextInt();
 
                         switch (opcUsuario)
