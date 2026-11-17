@@ -76,7 +76,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
                             rs.getString("nombre"),
                             rs.getString("origen"),
                             rs.getString("domicilio"),
-                            usuarioJDBC.buscarClientePorNombreUsuario(rs.getString("cliente")));
+                            (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));
 
                     return pasajeroSolicitado;
                 } else
@@ -104,7 +104,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
                         rs.getString("nombre"),
                         rs.getString("origen"),
                         rs.getString("domicilio"),
-                        usuarioJDBC.buscarClientePorNombreUsuario(rs.getString("cliente")));
+                        (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));
 
                 pasajeros.add(pasajero);
             }
