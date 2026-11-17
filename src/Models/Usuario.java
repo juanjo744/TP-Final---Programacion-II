@@ -72,4 +72,8 @@ public abstract class Usuario {
         setSesionActiva(false);
         return true;
     }
+
+    public boolean tieneContrasenia() {
+        return contrasenia != null && !contrasenia.isBlank();
+    }
 }

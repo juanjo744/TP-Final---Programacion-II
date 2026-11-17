@@ -3,10 +3,7 @@ package Repositorio;
 import Connection.DBConnection;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
-import Gestor.GestorHabitaciones;
-import Gestor.GestorOcupaciones;
-import Gestor.GestorPasajeros;
-import Gestor.GestorReservas;
+import Gestor.*;
 import Interfaces.IHotelJDBC;
 import Models.*;
 
@@ -14,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
@@ -21,6 +19,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
     private GestorHabitaciones gestorHabitaciones;
     private GestorOcupaciones gestorOcupaciones;
     private GestorPasajeros gestorPasajeros;
+    private GestorUsuarios gestorUsuarios;
 
     private static String sqlUsuario = "CREATE TABLE IF NOT EXISTS Usuario (" +
             "nombreUsuario VARCHAR(50) PRIMARY KEY, " +
@@ -85,7 +84,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
                             return new Cliente(nombre, null, gestorReservas);
 
                         case ADMINISTRADOR:
-                            return new Administrador(nombre, null, TipoUsuario.ADMINISTRADOR);
+                            return new Administrador(nombre, null, TipoUsuario.ADMINISTRADOR, gestorUsuarios);
 
                         case RECEPCIONISTA:
                             return new Recepcionista(nombre, null, gestorHabitaciones, gestorReservas, gestorOcupaciones, gestorPasajeros);
@@ -105,16 +104,80 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
 
     @Override
     public List<Usuario> listarTodos() throws JDBCException {
-        return List.of();
+        List<Usuario> usuarios = new ArrayList<>();
+        List<String> nombres = new ArrayList<>();
+
+        String sql = """
+            SELECT nombreUsuario
+            FROM Usuario
+            ORDER BY nombreUsuario
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql);
+             ResultSet resultado = consulta.executeQuery()) {
+
+            while (resultado.next()) {
+                nombres.add(resultado.getString("nombreUsuario"));
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudieron listar los usuarios.", ex);
+        }
+
+        for (String nombre : nombres) {
+            Usuario usuario = buscarPorID(nombre);
+
+            if (usuario != null) {
+                usuarios.add(usuario);
+            }
+        }
+
+        return usuarios;
+    }
+    @Override
+    public void actualizar(Usuario usuario, String nombreUsuario) throws JDBCException {
+
+        String sql = """
+            UPDATE Usuario
+            SET contrasenia = ?
+            WHERE nombreUsuario = ?
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, usuario.obtenerHashContrasenia());
+            consulta.setString(2, nombreUsuario);
+
+            consulta.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo actualizar el usuario.", ex);
+        }
     }
 
     @Override
-    public void actualizar(Usuario elemento, String s) throws JDBCException {
+    public void eliminar(String nombreUsuario) throws JDBCException {
+        String sql = "DELETE FROM Usuario WHERE nombreUsuario = ?";
 
-    }
+        DBConnection db = new DBConnection();
 
-    @Override
-    public void eliminar(String s) throws JDBCException {
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
 
+            consulta.setString(1, nombreUsuario);
+
+            if (consulta.executeUpdate() != 1) {
+                throw new SQLException("No existe un usuario con ese nombre.");
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo eliminar el usuario.", ex);
+        }
     }
 }

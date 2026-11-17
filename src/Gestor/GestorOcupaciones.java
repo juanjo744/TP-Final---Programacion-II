@@ -80,7 +80,7 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
         return ocupacionJDBC.listarTodos();
     }
 
-    public Map<Integer, Ocupacion> listarPorActividad(Boolean activa) throws JDBCException
+    public Map<Integer, Ocupacion> listarPorActividad(boolean activa) throws JDBCException
     {
         List<Ocupacion> ocupaciones = ocupacionJDBC.listarTodos();
         Map<Integer, Ocupacion> ocupacionMap = new LinkedHashMap<>();

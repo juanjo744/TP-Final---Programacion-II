@@ -7,8 +7,10 @@ import Exceptions.VPasajeroInvalidoException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
+import Models.Ocupacion;
 import Models.Pasajero;
 import Models.Reserva;
+import Repositorio.OcupacionJDBC;
 import Repositorio.PasajeroJDBC;
 import Repositorio.ReservaJDBC;
 
@@ -21,9 +23,12 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
 
     private PasajeroJDBC pasajeroJDBC;
     private ReservaJDBC reservaJDBC;
+    private OcupacionJDBC ocupacionJDBC;
 
-    public GestorPasajeros(PasajeroJDBC pasajeroJDBC) {
+    public GestorPasajeros(PasajeroJDBC pasajeroJDBC, OcupacionJDBC ocupacionJDBC, ReservaJDBC reservaJDBC) {
         this.pasajeroJDBC = pasajeroJDBC;
+        this.ocupacionJDBC = ocupacionJDBC;
+        this.reservaJDBC = reservaJDBC;
     }
 
     @Override
@@ -43,11 +48,9 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
 
         Pasajero pasajeroEncontrado = pasajeroJDBC.buscarPorID(pasajero.getDNI());
 
-        if (pasajeroEncontrado == null){
-            throw new VPasajeroInvalidoException("El pasajero no fue encontrado");
+        if (pasajeroEncontrado != null){
+            throw new VPasajeroInvalidoException("Ya existe un pasajero con ese ID.");
         }
-
-        // PENDIENTE:
 
         pasajeroJDBC.guardar(pasajero);
     }
@@ -115,6 +118,20 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
         }
 
         return pasajerosDisponibles;
+    }
+
+    public Map<String, Pasajero> listarAlojados() throws JDBCException {
+        Map<String, Pasajero> pasajeros = new HashMap<>();
+
+        for (Ocupacion ocupacion : ocupacionJDBC.listarTodos()) {
+            if (ocupacion.isActiva()) {
+                for (Pasajero pasajero : ocupacion.getPasajeros()) {
+                    pasajeros.put(pasajero.getDNI(), pasajero);
+                }
+            }
+        }
+
+        return pasajeros;
     }
 
     @Override
