@@ -1,12 +1,11 @@
 package Repositorio;
 
+import Enums.EstadoHabitacion;
 import Exceptions.JDBCException;
 import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import Connection.DBConnection;
 
@@ -34,13 +33,47 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
     }
 
     @Override
-    public void guardar(Habitacion elemento) {
+    public void guardar(Habitacion habitacion) throws JDBCException{
+        DBConnection db = new DBConnection();
 
+        try (Connection conn = db.crearConexion();
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO Habitacion VALUES (?,?,?,?)")) {
+
+            ps.setInt(1, habitacion.getNumero());
+            ps.setInt(2, habitacion.getCapacidad());
+            ps.setDouble(3, habitacion.getPrecioPorNoche());
+            ps.setString(4, habitacion.getEstado().name());
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new JDBCException("Error al guardar la habitación." + ex);
+        }
     }
 
     @Override
-    public Habitacion buscarPorID(Integer integer) {
-        return null;
+    public Habitacion buscarPorID(Integer numero) throws JDBCException {
+        DBConnection db = new DBConnection();
+        Habitacion habitacionBuscada = null;
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Habitacion WHERE numero = ?");
+
+             ) {
+            ps.setInt(1, numero);
+            try (ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) {
+                    habitacionBuscada = new Habitacion(rs.getInt("numero"),
+                            rs.getInt("capacidad"),
+                            rs.getDouble("precioPorNoche"),
+                            EstadoHabitacion.valueOf(rs.getString("estado")));
+
+                    return habitacionBuscada;
+                } else
+                    throw new JDBCException("La habitación solicitada no existe.");
+            }
+        } catch (SQLException ex) {
+            throw new JDBCException("Error al buscar la habitación.", ex);
+        }
     }
 
     @Override
@@ -49,12 +82,12 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
     }
 
     @Override
-    public void actualizar(Habitacion elemento, Integer integer) {
+    public void actualizar(Habitacion habitacion, Integer numero) {
 
     }
 
     @Override
-    public void eliminar(Integer integer) {
+    public void eliminar(Integer numero) {
 
     }
 }

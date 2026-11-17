@@ -9,7 +9,7 @@ public class Habitacion {
     private double precioPorNoche;
     private EstadoHabitacion estado;
 
-    public Habitacion(int capacidad, double precioPorNoche, EstadoHabitacion estado, int numero) {
+    public Habitacion(int numero, int capacidad, double precioPorNoche, EstadoHabitacion estado) {
         this.numero = numero;
         this.capacidad = capacidad;
         this.precioPorNoche = precioPorNoche;

@@ -1,6 +1,7 @@
 package Gestor;
 
 import Enums.EstadoHabitacion;
+import Exceptions.JDBCException;
 import Exceptions.VHabitacionInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
@@ -42,8 +43,11 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
             throw new VHabitacionInvalidaException("El numero ya esta registrado.");
         }
 
-        habitacionJDBC.guardar(habitacion);
-
+        try {
+            habitacionJDBC.guardar(habitacion);
+        } catch (JDBCException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
