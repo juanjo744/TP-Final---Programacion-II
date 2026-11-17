@@ -32,7 +32,7 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new JDBCException("Error al crear la tabla de habitaciones.");
+            throw new JDBCException("Error al crear la tabla de habitaciones.", e);
         }
     }
 
