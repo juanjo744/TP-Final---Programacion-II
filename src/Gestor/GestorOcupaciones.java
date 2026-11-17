@@ -1,5 +1,6 @@
 package Gestor;
 
+import Exceptions.JDBCException;
 import Exceptions.VOcupacionInvalidaException;
 import Exceptions.ValidacionException;
 import Interfaces.IGestorGenerico;
@@ -17,7 +18,7 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     }
 
     @Override
-    public void cargarElemento(Ocupacion ocupacion) throws VOcupacionInvalidaException {
+    public void cargarElemento(Ocupacion ocupacion) throws VOcupacionInvalidaException, JDBCException {
         if (ocupacion == null)
             throw new VOcupacionInvalidaException("Debe ingresar una ocupación válida.");
 
@@ -34,7 +35,7 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     }
 
     @Override
-    public Ocupacion buscarPorID(Integer ID) throws VOcupacionInvalidaException {
+    public Ocupacion buscarPorID(Integer ID) throws VOcupacionInvalidaException, JDBCException {
         if (ID == null || ID <= 0)
             throw new VOcupacionInvalidaException("Debe ingresar un ID válido.");
 
@@ -47,7 +48,7 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     }
 
     @Override
-    public void actualizar(Ocupacion ocupacion, Integer ID) throws VOcupacionInvalidaException {
+    public void actualizar(Ocupacion ocupacion, Integer ID) throws VOcupacionInvalidaException, JDBCException {
         if (ocupacion == null)
             throw new VOcupacionInvalidaException("Debe ingresar una ocupación válida.");
 
@@ -72,7 +73,7 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     }
 
     @Override
-    public void bajar(Integer ID) throws VOcupacionInvalidaException {
+    public void bajar(Integer ID) throws VOcupacionInvalidaException, JDBCException {
         if (ID == null || ID <= 0)
             throw new VOcupacionInvalidaException("Debe ingresar un ID válido.");
 

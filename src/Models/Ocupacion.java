@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Ocupacion {
-    private static int count = 0;
     private int id;
     private Habitacion habitacionReservada;
     private ArrayList<Pasajero> pasajeros;
@@ -12,9 +11,15 @@ public class Ocupacion {
     private LocalDate fechaCheckOut;
     private boolean activa;
 
+    public Ocupacion(Habitacion habitacionReservada, ArrayList<Pasajero> pasajeros, LocalDate fechaCheckIn, LocalDate fechaCheckOut, boolean activa, int id) {
+        this.id = id;
+        this.habitacionReservada = habitacionReservada;
+        this.pasajeros = pasajeros;
+        this.fechaCheckIn = fechaCheckIn;
+        this.fechaCheckOut = fechaCheckOut;
+        this.activa = activa;
+    }
     public Ocupacion(Habitacion habitacionReservada, ArrayList<Pasajero> pasajeros, LocalDate fechaCheckIn, LocalDate fechaCheckOut, boolean activa) {
-        count++;
-        this.id = count;
         this.habitacionReservada = habitacionReservada;
         this.pasajeros = pasajeros;
         this.fechaCheckIn = fechaCheckIn;
@@ -56,6 +61,7 @@ public class Ocupacion {
         this.activa = activa;
     }
 
+
     @Override
     public String toString() {
         return "Ocupación Nro: " + id + ":\n" +
@@ -65,4 +71,20 @@ public class Ocupacion {
                 "Check-Out: " + fechaCheckOut + ":\n" +
                 "Estado: " + activa + ":\n";
     }
+
+    public void asignarId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(
+                    "El ID debe ser mayor que cero.");
+        }
+
+        if (this.id != 0) {
+            throw new IllegalStateException(
+                    "La ocupación ya tiene un ID asignado.");
+        }
+
+        this.id = id;
+    }
+
+
 }
