@@ -16,8 +16,7 @@ import Repositorio.PasajeroJDBC;
 import Repositorio.ReservaJDBC;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     private OcupacionJDBC ocupacionJDBC;
@@ -77,8 +76,22 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
     }
 
     @Override
-    public List<Ocupacion> listar() {
-        return List.of();
+    public List<Ocupacion> listar() throws JDBCException {
+        return ocupacionJDBC.listarTodos();
+    }
+
+    public Map<Integer, Ocupacion> listarPorActividad(Boolean activa) throws JDBCException
+    {
+        List<Ocupacion> ocupaciones = ocupacionJDBC.listarTodos();
+        Map<Integer, Ocupacion> ocupacionMap = new LinkedHashMap<>();
+
+        for (Ocupacion o : ocupaciones)
+        {
+            if (o.isActiva() == activa)
+                ocupacionMap.put(o.getId(), o);
+        }
+
+        return ocupacionMap;
     }
 
     @Override
