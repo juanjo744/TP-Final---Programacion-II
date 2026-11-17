@@ -19,7 +19,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public void cargarElemento(Habitacion habitacion) throws VHabitacionInvalidaException {
+    public void cargarElemento(Habitacion habitacion) throws VHabitacionInvalidaException, JDBCException {
 
         if (habitacion == null){
             throw new VHabitacionInvalidaException("La habitacion no puede ser nula.");
@@ -53,7 +53,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
 
     @Override
-    public Habitacion buscarPorID(Integer id) throws VHabitacionInvalidaException {
+    public Habitacion buscarPorID(Integer id) throws VHabitacionInvalidaException, JDBCException {
 
         if (id == null){
             throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");
@@ -66,7 +66,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public void actualizar(Habitacion habitacion, Integer id) throws VHabitacionInvalidaException {
+    public void actualizar(Habitacion habitacion, Integer id) throws VHabitacionInvalidaException, JDBCException {
 
         if (id == null){
             throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");
@@ -95,12 +95,12 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public List<Habitacion> listar() {
+    public List<Habitacion> listar() throws JDBCException {
 
         return habitacionJDBC.listarTodos();
     }
 
-    public List<Habitacion> listarDisponibles(){
+    public List<Habitacion> listarDisponibles() throws JDBCException {
 
         ArrayList<Habitacion> habitacionesDisponibles = new ArrayList<>();
 
@@ -116,7 +116,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
     }
 
-    public List<Habitacion> listarNoDisponibles(){
+    public List<Habitacion> listarNoDisponibles() throws JDBCException {
 
         ArrayList<Habitacion> habitacionesNoDisponibles = new ArrayList<>();
 
@@ -132,7 +132,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
     }
 
     @Override
-    public void bajar(Integer id) throws VHabitacionInvalidaException {
+    public void bajar(Integer id) throws VHabitacionInvalidaException, JDBCException {
 
         if (id == null){
             throw new VHabitacionInvalidaException("Debe ingresar un numero de habitacion.");

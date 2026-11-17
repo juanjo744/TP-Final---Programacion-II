@@ -5,7 +5,11 @@ import Exceptions.JDBCException;
 import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import Connection.DBConnection;
 
@@ -46,7 +50,7 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            throw new JDBCException("Error al guardar la habitación." + ex);
+            throw new JDBCException("Error al guardar la habitación.", ex);
         }
     }
 
@@ -69,7 +73,7 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
 
                     return habitacionBuscada;
                 } else
-                    throw new JDBCException("La habitación solicitada no existe.");
+                    return null;
             }
         } catch (SQLException ex) {
             throw new JDBCException("Error al buscar la habitación.", ex);
@@ -77,17 +81,74 @@ public class HabitacionJDBC implements IHotelJDBC<Habitacion, Integer> {
     }
 
     @Override
-    public List<Habitacion> listarTodos() {
-        return List.of();
+    public List<Habitacion> listarTodos() throws JDBCException {
+        List<Habitacion> habitaciones = new ArrayList<>();
+
+        String sql = "SELECT * FROM Habitacion";
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql);
+             ResultSet resultado = consulta.executeQuery()) {
+
+            while (resultado.next()) {
+                Habitacion habitacion = new Habitacion(
+                        resultado.getInt("numero"),
+                        resultado.getInt("capacidad"),
+                        resultado.getDouble("precioPorNoche"),
+                        EstadoHabitacion.valueOf(resultado.getString("estado"))
+                );
+
+                habitaciones.add(habitacion);
+            }
+
+            return habitaciones;
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudieron listar las habitaciones.");
+        }
     }
 
     @Override
-    public void actualizar(Habitacion habitacion, Integer numero) {
+    public void actualizar(Habitacion habitacion, Integer id) throws JDBCException {
 
+        String sql = """
+            UPDATE Habitacion
+            SET capacidad = ?, precioPorNoche = ?, estado = ?
+            WHERE numero = ?
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, habitacion.getCapacidad());
+            consulta.setDouble(2, habitacion.getPrecioPorNoche());
+            consulta.setString(3, habitacion.getEstado().name());
+            consulta.setInt(4, id);
+
+            consulta.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo actualizar la habitación.");
+        }
     }
 
     @Override
-    public void eliminar(Integer numero) {
+    public void eliminar(Integer id) throws JDBCException {
+        String sql = "DELETE FROM Habitacion WHERE numero = ?";
 
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, id);
+            consulta.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo eliminar la habitación.");
+        }
     }
 }

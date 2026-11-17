@@ -1,6 +1,7 @@
 package Gestor;
 
 import Enums.EstadoReserva;
+import Exceptions.JDBCException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
@@ -21,7 +22,7 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public void cargarElemento(Reserva reserva) throws VReservaInvalidaException {
+    public void cargarElemento(Reserva reserva) throws VReservaInvalidaException, JDBCException {
 
         if (reserva == null){
             throw new VReservaInvalidaException("Debe ingresar una reserva válida.");
@@ -72,7 +73,7 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
     }
 
     @Override
-    public void actualizar(Reserva reserva, Integer id) throws VReservaInvalidaException {
+    public void actualizar(Reserva reserva, Integer id) throws VReservaInvalidaException, JDBCException {
 
         if (id == null){
             throw new VReservaInvalidaException("Debe ingresar un numero de reserva");

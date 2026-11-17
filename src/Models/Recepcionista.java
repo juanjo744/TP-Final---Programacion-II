@@ -1,9 +1,21 @@
 package Models;
 
-public class Recepcionista extends Usuario{
+import Exceptions.JDBCException;
+import Exceptions.VReservaInvalidaException;
+import Gestor.GestorHabitaciones;
+import Gestor.GestorReservas;
 
-    public Recepcionista(String nombreUsuario, String contrasenia) {
+import java.util.List;
+
+public class Recepcionista extends Usuario {
+
+    private GestorReservas gestorReservas;
+    private GestorHabitaciones gestorHabitaciones;
+
+    public Recepcionista(String nombreUsuario, String contrasenia, GestorHabitaciones gestorHabitaciones, GestorReservas gestorReservas) {
         super(nombreUsuario, contrasenia);
+        this.gestorHabitaciones = gestorHabitaciones;
+        this.gestorReservas = gestorReservas;
     }
 
     public void realizarCheckIn(Reserva reserva) {
@@ -21,13 +33,15 @@ public class Recepcionista extends Usuario{
 
     }
 
-    public void crearReserva(){
+    public void crearReserva(Reserva reserva) throws VReservaInvalidaException, JDBCException {
+
+        gestorReservas.cargarElemento(reserva);
 
     }
 
 
-    public void estadoHabitaciones(){
-
+    public List<Habitacion> estadoHabitaciones() throws JDBCException {
+        return gestorHabitaciones.listar();
     }
 
 
