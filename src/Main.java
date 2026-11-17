@@ -5,9 +5,15 @@
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.LoginException;
+import Exceptions.ValidacionException;
 import Gestor.*;
+import Models.Administrador;
+import Models.Cliente;
+import Models.Recepcionista;
 import Models.Usuario;
 import Repositorio.*;
+
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Main { public static void main(String[] args){
@@ -49,6 +55,49 @@ public class Main { public static void main(String[] args){
                 System.out.println("4. Actualizar usuario.");
                 System.out.println("5. Eliminar usuario.");
                 System.out.println("6. Crear backup.");
+                int opc = scanner.nextInt();
+
+                switch (opc) {
+                    case 1:
+                    {
+                        System.out.println("Defina los datos de nuevo usuario...");
+                        System.out.println("Nombre de usuario: ");
+                        String nombreUsuarioN = scanner.nextLine();
+                        System.out.println("Contraseña: ");
+                        String contraseniaN = scanner.nextLine();
+                        System.out.println("Defina el tipo de usuario." +
+                                "1 - Administrador." +
+                                "2 - Recepcionista." +
+                                "3 - Cliente.");
+                        int opcUsuario = scanner.nextInt();
+
+                        switch (opcUsuario)
+                        {
+                            case 1:
+                            {
+                                Usuario usuario1 = new Administrador(nombreUsuarioN, contraseniaN, gestorUsuarios);
+                                gestorUsuarios.cargarElemento(usuario1);
+
+                                break;
+                            }
+                            case 2:
+                            {
+                                Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
+                                        gestorReservas, gestorOcupaciones, gestorPasajeros);
+                                gestorUsuarios.cargarElemento(usuario1);
+                            }
+                            case 3:
+                            {
+                                Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas);
+                                gestorUsuarios.cargarElemento(usuario1);
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 break;
             }
@@ -71,6 +120,8 @@ public class Main { public static void main(String[] args){
     } catch (JDBCException e) {
         throw new RuntimeException(e);
     } catch (LoginException e) {
+        throw new RuntimeException(e);
+    } catch (ValidacionException e) {
         throw new RuntimeException(e);
     }
 }

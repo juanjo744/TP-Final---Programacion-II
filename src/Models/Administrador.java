@@ -12,8 +12,8 @@ public class Administrador extends Usuario {
 
     private GestorUsuarios gestorUsuarios;
 
-    public Administrador(String nombreUsuario, String contrasenia, TipoUsuario tipo, GestorUsuarios gestorUsuarios) {
-        super(nombreUsuario, contrasenia, tipo);
+    public Administrador(String nombreUsuario, String contrasenia, GestorUsuarios gestorUsuarios) {
+        super(nombreUsuario, contrasenia, TipoUsuario.ADMINISTRADOR);
         this.gestorUsuarios = gestorUsuarios;
     }
 

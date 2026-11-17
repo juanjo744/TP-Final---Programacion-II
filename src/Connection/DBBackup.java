@@ -3,6 +3,7 @@ package Connection;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -16,15 +17,9 @@ public class DBBackup {
 
         String fecha = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 
-        Path archivo = carpeta.resolve("backup_"+fecha+".sql");
+        Path archivo = carpeta.resolve("backup_" + fecha + ".sql");
 
-        ProcessBuilder constructor = new ProcessBuilder(
-                ejecutable,
-                "--login-path=hotel",
-                "--single-transaction",
-                "--result-file=" + archivo,
-                mibd
-        );
+        ProcessBuilder constructor = new ProcessBuilder(ejecutable, "--login-path=hotel", "--single-transaction", "--result-file=" + archivo, mibd);
 
         constructor.inheritIO();
 
@@ -35,8 +30,10 @@ public class DBBackup {
                 Files.deleteIfExists(archivo);
                 throw new IOException("No se pudo crear el backup. Código " + codigo + ".");
             }
+        } catch (InterruptedException ex)
+        {
+            System.out.println("Error al crear el backup." + ex.getMessage());
         }
-
 
         return "Backup creado en " + archivo + ".";
     }

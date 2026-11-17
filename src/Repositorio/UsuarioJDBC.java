@@ -93,7 +93,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
                             return new Cliente(nombre, null, gestorReservas);
 
                         case ADMINISTRADOR:
-                            return new Administrador(nombre, null, TipoUsuario.ADMINISTRADOR, gestorUsuarios);
+                            return new Administrador(nombre, null, gestorUsuarios);
 
                         case RECEPCIONISTA:
                             return new Recepcionista(nombre, null, gestorHabitaciones, gestorReservas, gestorOcupaciones, gestorPasajeros);
