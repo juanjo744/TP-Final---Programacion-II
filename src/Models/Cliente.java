@@ -1,5 +1,7 @@
 package Models;
 
+import Enums.Consumos;
+import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.VReservaInvalidaException;
 import Gestor.GestorReservas;
@@ -7,10 +9,20 @@ import Gestor.GestorReservas;
 public class Cliente extends Usuario {
 
     private GestorReservas gestorReservas;
+    private double gastosAdicionales;
 
-    public Cliente(String nombreUsuario, String contrasenia, GestorReservas gestorReservas) {
-        super(nombreUsuario, contrasenia);
+    public Cliente(String nombreUsuario, String contrasenia, TipoUsuario tipo, GestorReservas gestorReservas) {
+        super(nombreUsuario, contrasenia, tipo);
         this.gestorReservas = gestorReservas;
+        gastosAdicionales = 0;
+    }
+
+    public double getGastosAdicionales() {
+        return gastosAdicionales;
+    }
+
+    public void setGastosAdicionales(double gastosAdicionales) {
+        this.gastosAdicionales = gastosAdicionales;
     }
 
     public void solicitarReserva(Reserva reserva) throws VReservaInvalidaException, JDBCException {
@@ -25,15 +37,9 @@ public class Cliente extends Usuario {
 
     }
 
-    public void realizarConsumo(){
+    public boolean realizarConsumo(Consumos consumo){
+        this.setGastosAdicionales(gastosAdicionales + consumo.getPrecio());
 
+        return true;
     }
-    public void montoAPagar(){
-
-        
-    }
-
-
-
-
 }
