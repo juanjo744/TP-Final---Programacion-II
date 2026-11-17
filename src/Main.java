@@ -33,6 +33,23 @@ public class Main { public static void main(String[] args){
         GestorJDBC gestorJDBC = new GestorJDBC();
         gestorJDBC.cargarTablas();
 
+        if (gestorUsuarios.listar().isEmpty()) {
+
+            System.out.println("Configuracion inicial del sistema.");
+
+            System.out.println("Nombre del administrador:");
+            String nombreAdmin = scanner.nextLine();
+
+            System.out.println("Contraseña del administrador:");
+            String contraseniaAdmin = scanner.nextLine();
+
+            Administrador admin = new Administrador(nombreAdmin, contraseniaAdmin, gestorUsuarios);
+
+            gestorUsuarios.cargarElemento(admin);
+
+            System.out.println("Administrador inicial creado correctamente.");
+        }
+
         System.out.println("Ingrese su nombre de usuario: ");
         String nombreUsuario = scanner.nextLine();
         System.out.println("Ingrese su contraseña: ");
