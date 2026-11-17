@@ -11,6 +11,7 @@ import Models.Pasajero;
 import Models.Reserva;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             "fechaFin DATE NOT NULL, " +
             "estado VARCHAR(30) NOT NULL, " +
             "FOREIGN KEY (habitacionSolicitada) REFERENCES Habitacion(numero), " +
-            "FOREIGN KEY (titular) REFERENCES Cliente(nombreUsuario)" +
+            "FOREIGN KEY (titular) REFERENCES Usuario(nombreUsuario)" +
             ")";
     private static String sqlReservaPasajero = "CREATE TABLE IF NOT EXISTS ReservaPasajero (" +
             "reservaId INT NOT NULL," +
@@ -381,6 +382,45 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
 
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo eliminar la reserva.", ex);
+        }
+    }
+
+    public boolean tieneReservaEnPeriodo(int numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin, Integer idExcluir) throws JDBCException {
+
+        String sql = """
+            SELECT id
+            FROM Reserva
+            WHERE habitacionSolicitada = ?
+              AND estado IN ('PENDIENTE', 'CONFIRMADA', 'EN_CURSO')
+              AND fechaInicio < ?
+              AND fechaFin > ?
+            """;
+
+        if (idExcluir != null) {
+            sql += " AND id <> ?";
+        }
+
+        sql += " LIMIT 1";
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, numeroHabitacion);
+            consulta.setDate(2, java.sql.Date.valueOf(fechaFin));
+            consulta.setDate(3, java.sql.Date.valueOf(fechaInicio));
+
+            if (idExcluir != null) {
+                consulta.setInt(4, idExcluir);
+            }
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+                return resultado.next();
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo comprobar la disponibilidad de reservas.", ex);
         }
     }
 }

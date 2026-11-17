@@ -23,7 +23,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             "origen VARCHAR(60) NOT NULL, " +
             "domicilio VARCHAR(150) NOT NULL, " +
             "cliente VARCHAR(50) NOT NULL, " +
-            "FOREIGN KEY (cliente) REFERENCES Cliente(nombreUsuario)" +
+            "FOREIGN KEY (cliente) REFERENCES Usuario(nombreUsuario)" +
             ")";
 
     @Override

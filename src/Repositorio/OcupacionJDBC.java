@@ -845,5 +845,35 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
         }
     }
 
+    public boolean tieneOcupacionEnPeriodo(int numeroHabitacion, LocalDate fechaInicio, LocalDate fechaFin) throws JDBCException {
+
+        String sql = """
+            SELECT id
+            FROM Ocupacion
+            WHERE habitacionReservada = ?
+              AND activa = TRUE
+              AND fechaCheckIn < ?
+              AND fechaCheckOut > ?
+            LIMIT 1
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, numeroHabitacion);
+            consulta.setDate(2, java.sql.Date.valueOf(fechaFin));
+            consulta.setDate(3, java.sql.Date.valueOf(fechaInicio));
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+                return resultado.next();
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo comprobar la disponibilidad de ocupaciones.", ex);
+        }
+    }
+
 
 }

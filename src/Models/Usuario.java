@@ -41,10 +41,6 @@ public abstract class Usuario {
         this.sesionActiva = sesionActiva;
     }
 
-    public boolean verificarUsuario(int hashCode)
-    {
-        return hashCode == this.obtenerHashContrasenia();
-    }
 
     public TipoUsuario getTipo() {
         return tipo;
@@ -54,13 +50,8 @@ public abstract class Usuario {
         this.tipo = tipo;
     }
 
-    public void iniciarSesion(String contraseniaIngresada) throws LoginException {
-
-        if (!contraseniaIngresada.equals(contrasenia)) {
-            throw new LoginException();
-
-        }
-        this.setSesionActiva(true);
+    public void iniciarSesion() {
+        this.sesionActiva = true;
     }
 
     public boolean cerrarSesion(){

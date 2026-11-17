@@ -7,6 +7,7 @@ import Interfaces.IGestorGenerico;
 import Models.Habitacion;
 import Models.Reserva;
 import Repositorio.HabitacionJDBC;
+import Repositorio.OcupacionJDBC;
 import Repositorio.ReservaJDBC;
 
 import java.util.List;
@@ -15,10 +16,12 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
 
     private ReservaJDBC reservaJDBC;
     private HabitacionJDBC habitacionJDBC;
+    private OcupacionJDBC ocupacionJDBC;
 
-    public GestorReservas(ReservaJDBC reservaJDBC, HabitacionJDBC habitacionJDBC) {
+    public GestorReservas(ReservaJDBC reservaJDBC, HabitacionJDBC habitacionJDBC, OcupacionJDBC ocupacionJDBC) {
         this.reservaJDBC = reservaJDBC;
         this.habitacionJDBC = habitacionJDBC;
+        this.ocupacionJDBC = ocupacionJDBC;
     }
 
     @Override
@@ -52,8 +55,15 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
             throw new VReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
         }
 
-        // PENDIENTE: Antes de guardar, comprobar que la habitacion no tenga reservas pendientes o confirmadas
-        // ni ocupaciones que coincidan con las fechas solicitadas. Agregar las consultas JDBC correspondientes.
+        if (reservaJDBC.tieneReservaEnPeriodo(habitacionEncontrada.getNumero(), reserva.getFechaInicio(), reserva.getFechaFin(), null)) {
+
+            throw new VReservaInvalidaException("La habitación tiene otra reserva para esas fechas.");
+        }
+
+        if (ocupacionJDBC.tieneOcupacionEnPeriodo(habitacionEncontrada.getNumero(), reserva.getFechaInicio(), reserva.getFechaFin())) {
+
+            throw new VReservaInvalidaException("La habitación tiene una ocupación para esas fechas.");
+        }
 
         reservaJDBC.guardar(reserva);
 
@@ -118,10 +128,16 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
         if (reserva.getPasajeros().size() > habitacionEncontrada.getCapacidad()){
             throw new VReservaInvalidaException("La cantidad de pasajeros no puede superar la capacidad de la habitacion.");
         }
+        if (ocupacionJDBC.tieneOcupacionEnPeriodo(habitacionEncontrada.getNumero(), reserva.getFechaInicio(), reserva.getFechaFin())) {
 
-        // PENDIENTE: Comprobar con consultas JDBC que no haya otras reservas pendientes o confirmadas
-        // ni ocupaciones que coincidan con las nuevas fechas para la habitacion elegida.
-        // Excluir de la busqueda la propia reserva identificada por id.
+            throw new VReservaInvalidaException("La habitación tiene una ocupación para esas fechas.");
+        }
+
+        if (reservaJDBC.tieneReservaEnPeriodo(habitacionEncontrada.getNumero(), reserva.getFechaInicio(), reserva.getFechaFin(), id)) {
+
+            throw new VReservaInvalidaException("La habitación tiene otra reserva para esas fechas.");
+        }
+
 
         reservaJDBC.actualizar(reserva, id);
 

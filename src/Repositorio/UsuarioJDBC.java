@@ -3,6 +3,7 @@ package Repositorio;
 import Connection.DBConnection;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
+import Exceptions.LoginException;
 import Gestor.*;
 import Interfaces.IHotelJDBC;
 import Models.*;
@@ -26,6 +27,14 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
             "contrasenia VARCHAR(255) NOT NULL, " +
             "tipoUsuario VARCHAR(30) NOT NULL" +
             ")";
+
+    public void configurarGestores(GestorReservas gestorReservas, GestorHabitaciones gestorHabitaciones, GestorOcupaciones gestorOcupaciones, GestorPasajeros gestorPasajeros, GestorUsuarios gestorUsuarios) {
+        this.gestorReservas = gestorReservas;
+        this.gestorHabitaciones = gestorHabitaciones;
+        this.gestorOcupaciones = gestorOcupaciones;
+        this.gestorPasajeros = gestorPasajeros;
+        this.gestorUsuarios = gestorUsuarios;
+    }
 
     @Override
     public void crearTabla() throws JDBCException {
@@ -179,5 +188,53 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo eliminar el usuario.", ex);
         }
+    }
+
+    public Usuario autenticar(String nombreUsuario, String contraseniaIngresada) throws JDBCException, LoginException {
+
+        if (nombreUsuario == null || nombreUsuario.isBlank() || contraseniaIngresada == null || contraseniaIngresada.isBlank()) {
+            throw new LoginException();
+        }
+
+        String sql = """
+            SELECT contrasenia
+            FROM Usuario
+            WHERE nombreUsuario = ?
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setString(1, nombreUsuario);
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+                if (!resultado.next()) {
+                    throw new LoginException();
+                }
+
+                int hashGuardado = resultado.getInt("contrasenia");
+                int hashIngresado = contraseniaIngresada.hashCode() * 14;
+
+                if (hashGuardado != hashIngresado) {
+                    throw new LoginException();
+                }
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo comprobar el inicio de sesión.", ex);
+        }
+
+        Usuario usuario = buscarPorID(nombreUsuario);
+
+        if (usuario == null) {
+            throw new LoginException();
+        }
+
+        usuario.iniciarSesion();
+        return usuario;
+
+
     }
 }
