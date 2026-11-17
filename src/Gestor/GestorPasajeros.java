@@ -1,19 +1,26 @@
 package Gestor;
 
+import Enums.EstadoHabitacion;
+import Enums.EstadoReserva;
 import Exceptions.JDBCException;
 import Exceptions.VPasajeroInvalidoException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
 import Models.Pasajero;
+import Models.Reserva;
 import Repositorio.PasajeroJDBC;
+import Repositorio.ReservaJDBC;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
 
     private PasajeroJDBC pasajeroJDBC;
+    private ReservaJDBC reservaJDBC;
 
     public GestorPasajeros(PasajeroJDBC pasajeroJDBC) {
         this.pasajeroJDBC = pasajeroJDBC;
@@ -87,8 +94,27 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
     }
 
     @Override
-    public List<Pasajero> listar() {
-        return List.of();
+    public List<Pasajero> listar() throws JDBCException {
+        return pasajeroJDBC.listarTodos();
+    }
+
+    public Map<String, Pasajero> listarPorEstado(EstadoReserva estado) throws JDBCException {
+
+        Map<String, Pasajero> pasajerosDisponibles = new HashMap<>();
+        List<Reserva> reservas = reservaJDBC.listarTodos();
+
+        for (Reserva r : reservas)
+        {
+            if (r.getEstado().equals(estado))
+            {
+                for (Pasajero p : r.getPasajeros())
+                {
+                    pasajerosDisponibles.put(p.getDNI(), p);
+                }
+            }
+        }
+
+        return pasajerosDisponibles;
     }
 
     @Override
