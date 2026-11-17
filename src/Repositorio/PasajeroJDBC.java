@@ -24,7 +24,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             "domicilio VARCHAR(150) NOT NULL, " +
             "cliente VARCHAR(50) NOT NULL, " +
             "FOREIGN KEY (cliente) REFERENCES Usuario(nombreUsuario)" +
-            ")";
+            ");";
 
     @Override
     public void crearTabla() throws JDBCException {
@@ -36,7 +36,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            throw new JDBCException("Error al crear la tabla.", ex);
+            throw new JDBCException("Error al crear la tabla de pasajeros.", ex);
         }
     }
 

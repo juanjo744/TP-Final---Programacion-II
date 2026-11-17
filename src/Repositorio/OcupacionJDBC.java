@@ -23,7 +23,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             "activa BOOLEAN NOT NULL, " +
             "FOREIGN KEY (habitacionReservada) REFERENCES Habitacion(numero)" +
             "reservaId INT NULL,\n" +
-            "FOREIGN KEY (reservaId) REFERENCES Reserva(id))";
+            "FOREIGN KEY (reservaId) REFERENCES Reserva(id));";
 
     private static String sqlOcupacionPasajero = """
             CREATE TABLE IF NOT EXISTS OcupacionPasajero (
@@ -32,7 +32,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
                 PRIMARY KEY (ocupacionId, pasajeroDni),
                 FOREIGN KEY (ocupacionId) REFERENCES Ocupacion(id),
                 FOREIGN KEY (pasajeroDni) REFERENCES Pasajero(DNI)
-            )
+            );
             """;
     @Override
     public void crearTabla() throws JDBCException {
@@ -48,7 +48,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new JDBCException("Error al crear la tabla.");
+            throw new JDBCException("Error al crear la tabla de ocupaciones.");
         }
     }
 

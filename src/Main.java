@@ -2,7 +2,6 @@
 /// GESTÓR DE HOTEL
 /// Alumnos: Juan José Sánchez Miller y Franco Miguel Fanelli
 
-import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.LoginException;
 import Exceptions.ValidacionException;
@@ -13,7 +12,6 @@ import Models.Recepcionista;
 import Models.Usuario;
 import Repositorio.*;
 
-import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Main { public static void main(String[] args){
@@ -96,6 +94,10 @@ public class Main { public static void main(String[] args){
                                 break;
                             }
                         }
+                    }
+                    case 2:
+                    {
+                        
                     }
                 }
 

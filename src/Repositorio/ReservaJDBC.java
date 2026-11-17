@@ -26,7 +26,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             "estado VARCHAR(30) NOT NULL, " +
             "FOREIGN KEY (habitacionSolicitada) REFERENCES Habitacion(numero), " +
             "FOREIGN KEY (titular) REFERENCES Usuario(nombreUsuario)" +
-            ")";
+            ");";
     private static String sqlReservaPasajero = "CREATE TABLE IF NOT EXISTS ReservaPasajero (" +
             "reservaId INT NOT NULL," +
             "pasajeroDni VARCHAR(15) NOT NULL," +
@@ -48,7 +48,7 @@ public class ReservaJDBC implements IHotelJDBC<Reserva, Integer> {
             }
 
         } catch (SQLException e) {
-            throw new JDBCException("Error al crear la tabla.");
+            throw new JDBCException("Error al crear la tabla de reservas.");
         }
     }
 

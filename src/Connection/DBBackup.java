@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class DBBackup {
     private String ejecutable = "C:\\Users\\Juan\\Documents";
-    private String mibd = "mibd";
+    private String mibd = "2026_C7_JuanJose_SanchezMiller";
     private Path carpeta = Path.of("Backups").toAbsolutePath();
 
     public String crearBackup() throws IOException, InterruptedException {

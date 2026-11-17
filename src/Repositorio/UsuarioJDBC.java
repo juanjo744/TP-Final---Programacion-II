@@ -26,7 +26,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
             "nombreUsuario VARCHAR(50) PRIMARY KEY, " +
             "contrasenia VARCHAR(255) NOT NULL, " +
             "tipoUsuario VARCHAR(30) NOT NULL" +
-            ")";
+            ");";
 
     public void configurarGestores(GestorReservas gestorReservas, GestorHabitaciones gestorHabitaciones, GestorOcupaciones gestorOcupaciones, GestorPasajeros gestorPasajeros, GestorUsuarios gestorUsuarios) {
         this.gestorReservas = gestorReservas;
@@ -46,7 +46,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new JDBCException("Error al crear la tabla.");
+            throw new JDBCException("Error al crear la tabla de usuarios.");
         }
     }
 
