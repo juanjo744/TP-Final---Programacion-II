@@ -23,7 +23,9 @@ public class DBBackup {
 
         constructor.inheritIO();
 
-        try (Process pr = constructor.start()) {
+        Process pr = constructor.start();
+
+        try {
             int codigo = pr.waitFor();
 
             if (codigo != 0) {
@@ -33,6 +35,9 @@ public class DBBackup {
         } catch (InterruptedException ex)
         {
             System.out.println("Error al crear el backup." + ex.getMessage());
+        }
+        finally {
+            pr.destroy();
         }
 
         return "Backup creado en " + archivo + ".";

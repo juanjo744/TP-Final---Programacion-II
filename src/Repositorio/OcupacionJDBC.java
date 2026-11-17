@@ -21,7 +21,7 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
             "fechaCheckIn DATE NOT NULL, " +
             "fechaCheckOut DATE NOT NULL, " +
             "activa BOOLEAN NOT NULL, " +
-            "FOREIGN KEY (habitacionReservada) REFERENCES Habitacion(numero)" +
+            "FOREIGN KEY (habitacionReservada) REFERENCES Habitacion(numero)," +
             "reservaId INT NULL,\n" +
             "FOREIGN KEY (reservaId) REFERENCES Reserva(id));";
 

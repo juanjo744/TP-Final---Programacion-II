@@ -26,7 +26,8 @@ public class GestorJDBC {
             reservaJDBC.crearTabla();
             ocupacionJDBC.crearTabla();
         } catch (JDBCException ex) {
-            throw new JDBCException("No se pudieron crear/verificar las tablas.");
+            ex.printStackTrace();
+            throw ex;
         }
 
         return true;
