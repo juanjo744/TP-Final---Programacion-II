@@ -56,9 +56,9 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
     }
 
     @Override
-    public void actualizar(Usuario usuario, String nombreUsuario) throws ValidacionException, JDBCException {
+    public void actualizar(Usuario usuario, String nuevoNombreUsuario) throws ValidacionException, JDBCException {
 
-        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+        if (nuevoNombreUsuario == null || nuevoNombreUsuario.isBlank()) {
             throw new ValidacionException("Debe indicar el nombre del usuario que desea actualizar.");
         }
 
@@ -66,7 +66,7 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
             throw new ValidacionException("El usuario no puede ser nulo.");
         }
 
-        if (!nombreUsuario.equals(usuario.getNombreUsuario())) {
+        if (!nuevoNombreUsuario.equals(usuario.getNombreUsuario())) {
             throw new ValidacionException("No se puede cambiar el nombre de usuario.");
         }
 
@@ -74,7 +74,7 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
             throw new ValidacionException("Debe indicar una contraseña.");
         }
 
-        Usuario usuarioEncontrado = usuarioJDBC.buscarPorID(nombreUsuario);
+        Usuario usuarioEncontrado = usuarioJDBC.buscarPorID(nuevoNombreUsuario);
 
         if (usuarioEncontrado == null) {
             throw new ValidacionException("No existe un usuario con ese nombre.");
@@ -84,11 +84,15 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
             throw new ValidacionException("El cambio de tipo de usuario debe realizarse por separado.");
         }
 
-        usuarioJDBC.actualizar(usuario, nombreUsuario);
+        usuarioJDBC.actualizar(usuario, nuevoNombreUsuario);
     }
 
-    public void actualizarPermisos(Usuario usuario, TipoUsuario nuevoTipo)  throws ValidacionException, JDBCException
+    public void actualizarPermisos(Usuario usuario, TipoUsuario nuevoTipo, Usuario admin)  throws ValidacionException, JDBCException
     {
+        if (usuario.getNombreUsuario().equals(admin.getNombreUsuario())) {
+            throw new ValidacionException("No puedes modificar tus propios permisos.");
+        }
+
         if (nuevoTipo == null) {
             throw new ValidacionException("El tipo de usuario no puede ser nulo.");
         }

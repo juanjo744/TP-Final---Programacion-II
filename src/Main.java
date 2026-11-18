@@ -2,6 +2,8 @@
 /// GESTÓR DE HOTEL
 /// Alumnos: Juan José Sánchez Miller y Franco Miguel Fanelli
 
+import Connection.DBBackup;
+import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.LoginException;
 import Exceptions.ValidacionException;
@@ -12,6 +14,7 @@ import Models.Recepcionista;
 import Models.Usuario;
 import Repositorio.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -59,77 +62,161 @@ public class Main { public static void main(String[] args){
         Usuario usuario = usuarioJDBC.autenticar(nombreUsuario, contrasenia);
 
         System.out.println("Programa de gestión hotelera. Bienvenido " + usuario.getNombreUsuario() + ".");
+        int opc;
 
         switch (usuario.getTipo())
         {
             case ADMINISTRADOR ->
             {
-                System.out.println("Menu: ADMINISTRADOR");
-                System.out.println("1. Crear usuario.");
-                System.out.println("2. Reasignar permisos a usuario.");
-                System.out.println("3. Ver usuarios.");
-                System.out.println("4. Actualizar usuario.");
-                System.out.println("5. Eliminar usuario.");
-                System.out.println("6. Crear backup.");
-                int opc = scanner.nextInt();
+                do {
 
-                switch (opc) {
-                    case 1:
-                    {
-                        scanner.nextLine();
-                        System.out.println("Defina los datos de nuevo usuario...");
-                        System.out.println("Nombre de usuario: ");
-                        String nombreUsuarioN = scanner.nextLine();
-                        System.out.println("Contraseña: ");
-                        String contraseniaN = scanner.nextLine();
-                        System.out.println("Defina el tipo de usuario." +
-                                "1 - Administrador.\n" +
-                                "2 - Recepcionista.\n" +
-                                "3 - Cliente.\n");
-                        int opcUsuario = scanner.nextInt();
+                    System.out.println("Menu: ADMINISTRADOR");
+                    System.out.println("1. Crear usuario.");
+                    System.out.println("2. Ver usuarios.");
+                    System.out.println("3. Reasignar permisos a usuario.");
+                    System.out.println("4. Actualizar usuario.");
+                    System.out.println("5. Eliminar usuario.");
+                    System.out.println("6. Crear backup.");
+                    System.out.println("7. Salir.");
+                    opc = scanner.nextInt();
 
-                        switch (opcUsuario)
+                    switch (opc) {
+                        case 1:
                         {
-                            case 1:
-                            {
-                                System.out.println("------------CREACIÓN DE USUARIO------------");
-                                Usuario usuario1 = new Administrador(nombreUsuarioN, contraseniaN, gestorUsuarios);
-                                gestorUsuarios.cargarElemento(usuario1);
+                            scanner.nextLine();
+                            System.out.println("Defina los datos de nuevo usuario...");
+                            System.out.println("Nombre de usuario: ");
+                            String nombreUsuarioN = scanner.nextLine();
+                            System.out.println("Contraseña: ");
+                            String contraseniaN = scanner.nextLine();
+                            System.out.println("Defina el tipo de usuario." +
+                                    "1 - Administrador.\n" +
+                                    "2 - Recepcionista.\n" +
+                                    "3 - Cliente.\n");
+                            int opcUsuario = scanner.nextInt();
 
-                                break;
-                            }
-                            case 2:
+                            switch (opcUsuario)
                             {
-                                Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
-                                        gestorReservas, gestorOcupaciones, gestorPasajeros);
-                                gestorUsuarios.cargarElemento(usuario1);
-                            }
-                            case 3:
-                            {
-                                Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas);
-                                gestorUsuarios.cargarElemento(usuario1);
-                            }
-                            default:
-                            {
-                                break;
+                                case 1:
+                                {
+                                    System.out.println("------------CREACIÓN DE USUARIO------------");
+                                    Usuario usuario1 = new Administrador(nombreUsuarioN, contraseniaN, gestorUsuarios);
+                                    gestorUsuarios.cargarElemento(usuario1);
+
+                                    break;
+                                }
+                                case 2:
+                                {
+                                    Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
+                                            gestorReservas, gestorOcupaciones, gestorPasajeros);
+                                    gestorUsuarios.cargarElemento(usuario1);
+                                }
+                                case 3:
+                                {
+                                    Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas);
+                                    gestorUsuarios.cargarElemento(usuario1);
+                                }
+                                default:
+                                {
+                                    break;
+                                }
                             }
                         }
-                    }
-                    case 2:
-                    {
-                        scanner.nextLine();
-                        System.out.println("------------REASIGNAR PERMISOS------------");
-                        System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
-                        System.out.println("Elija un usuario para modificar su tipo.");
-                    }
-                }
+                        case 2:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------LISTA DE USUARIOS------------");
+                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            break;
+                        }
+                        case 3:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------REASIGNAR PERMISOS------------");
+                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println("Elija un usuario para modificar su tipo.");
+                            String identificador = scanner.nextLine();
 
-                break;
+                            Usuario usuarioActualizar = gestorUsuarios.buscarPorID(identificador);
+                            System.out.println("Defina su nuevo tipo: " +
+                                    "1 - Administrador" +
+                                    "2 - Recepcionista" +
+                                    "3 - Cliente");
+                            int opcActUs = scanner.nextInt();
+                            scanner.nextLine();
+
+                            switch (opcActUs)
+                            {
+                                case 1:
+                                {
+                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.ADMINISTRADOR, usuario);
+                                    break;
+                                }
+                                case 2:
+                                {
+                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.RECEPCIONISTA, usuario);
+                                    break;
+                                }
+                                case 3:
+                                {
+                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.CLIENTE, usuario);
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        case 4:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------ACTUALIZAR USUARIO------------");
+                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println("Elija un usuario para modificar.");
+                            String identificador = scanner.nextLine();
+                            System.out.println("Elija su nuevo nombre de usuario: ");
+                            String nuevoNombreUsuario = scanner.nextLine();
+
+                            Usuario usuarioActualizar = gestorUsuarios.buscarPorID(identificador);
+                            gestorUsuarios.actualizar(usuarioActualizar, nuevoNombreUsuario);
+                            break;
+                        }
+                        case 5:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------ELIMINAR USUARIO------------");
+                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println("Elija un usuario para eliminar.");
+                            String identificador = scanner.nextLine();
+
+                            gestorUsuarios.bajar(identificador);
+                            break;
+                        }
+                        case 6:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------CREAR BACKUP------------");
+                            System.out.println("Ruta elegida: C:\\Users\\Documents");
+                            DBBackup dbBackup = new DBBackup();
+                            dbBackup.crearBackup();
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+                } while (opc <= 6);
             }
 
             case RECEPCIONISTA ->
             {
-                break;
+                do {
+                    System.out.println("Menu: RECEPCIONISTA");
+                    System.out.println("1. Por definir.");
+                    opc = scanner.nextInt();
+                } while (opc <= 1);
             }
 
             case CLIENTE ->
@@ -147,6 +234,10 @@ public class Main { public static void main(String[] args){
     } catch (LoginException e) {
         throw new RuntimeException(e);
     } catch (ValidacionException e) {
+        throw new RuntimeException(e);
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    } catch (InterruptedException e) {
         throw new RuntimeException(e);
     }
 }
