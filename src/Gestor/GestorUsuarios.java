@@ -107,10 +107,6 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
             throw new ValidacionException("El usuario no puede ser nulo.");
         }
 
-        if (!usuario.tieneContrasenia()) {
-            throw new ValidacionException("Debe indicar una contraseña.");
-        }
-
         Usuario usuarioEncontrado = usuarioJDBC.buscarPorID(usuario.getNombreUsuario());
 
         if (usuarioEncontrado == null) {

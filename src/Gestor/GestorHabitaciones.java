@@ -5,7 +5,9 @@ import Exceptions.JDBCException;
 import Exceptions.VHabitacionInvalidaException;
 import Interfaces.IGestorGenerico;
 import Models.Habitacion;
+import Models.Ocupacion;
 import Repositorio.HabitacionJDBC;
+import Repositorio.OcupacionJDBC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +15,11 @@ import java.util.List;
 public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> {
 
     private HabitacionJDBC habitacionJDBC;
+    private OcupacionJDBC ocupacionJDBC;
 
-    public GestorHabitaciones(HabitacionJDBC habitacionJDBC) {
+    public GestorHabitaciones(HabitacionJDBC habitacionJDBC, OcupacionJDBC ocupacionJDBC) {
         this.habitacionJDBC = habitacionJDBC;
+        this.ocupacionJDBC = ocupacionJDBC;
     }
 
     @Override
@@ -148,5 +152,32 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
         habitacionJDBC.eliminar(id);
 
+    }
+
+    public void cambiarEstado(Integer numero, EstadoHabitacion nuevoEstado) throws VHabitacionInvalidaException, JDBCException {
+
+        if (nuevoEstado == null) {
+            throw new VHabitacionInvalidaException("Debe seleccionar un estado.");
+        }
+
+        if (nuevoEstado == EstadoHabitacion.OCUPADA) {
+            throw new VHabitacionInvalidaException("El estado OCUPADA se asigna mediante el check-in.");
+        }
+
+        Habitacion habitacion = buscarPorID(numero);
+
+        if (habitacion == null) {
+            throw new VHabitacionInvalidaException("La habitación no existe.");
+        }
+
+        for (Ocupacion ocupacion : ocupacionJDBC.listarTodos()) {
+            if (ocupacion.isActiva() && ocupacion.getHabitacionReservada().getNumero() == numero) {
+
+                throw new VHabitacionInvalidaException("Debe realizar el check-out antes de cambiar el estado.");
+            }
+        }
+
+        habitacion.setEstado(nuevoEstado);
+        habitacionJDBC.actualizar(habitacion, numero);
     }
 }

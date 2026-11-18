@@ -4,6 +4,8 @@
 
 import Enums.Consumos;
 import Connection.DBBackup;
+import Enums.EstadoHabitacion;
+import Enums.EstadoReserva;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.LoginException;
@@ -15,11 +17,8 @@ import Repositorio.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
-import java.util.InputMismatchException;
 
 public class Main { public static void main(String[] args){
     HabitacionJDBC habitacionJDBC = new HabitacionJDBC();
@@ -28,7 +27,7 @@ public class Main { public static void main(String[] args){
     PasajeroJDBC pasajeroJDBC = new PasajeroJDBC();
     UsuarioJDBC usuarioJDBC = new UsuarioJDBC();
 
-    GestorHabitaciones gestorHabitaciones = new GestorHabitaciones(habitacionJDBC);
+    GestorHabitaciones gestorHabitaciones = new GestorHabitaciones(habitacionJDBC, ocupacionJDBC);
     GestorReservas gestorReservas = new GestorReservas(reservaJDBC, habitacionJDBC, ocupacionJDBC);
     GestorOcupaciones gestorOcupaciones = new GestorOcupaciones(ocupacionJDBC);
     GestorPasajeros gestorPasajeros = new GestorPasajeros(pasajeroJDBC, ocupacionJDBC, reservaJDBC);
@@ -204,6 +203,12 @@ public class Main { public static void main(String[] args){
                             System.out.println("Elija un usuario para eliminar.");
                             String identificador = scanner.nextLine();
 
+                            if (usuario.getNombreUsuario().equals(identificador)) {
+                                throw new ValidacionException("No podés eliminar tu propio usuario mientras estás usando el sistema.");
+                            }
+
+                            gestorUsuarios.bajar(identificador);
+
                             gestorUsuarios.bajar(identificador);
                             break;
                         }
@@ -235,11 +240,13 @@ public class Main { public static void main(String[] args){
                         System.out.println("La creacion del backup fue interrumpida.");
                         return;
                     }
-                } while (opc <= 6);
+                } while (opc != 6);
             }
 
             case RECEPCIONISTA ->
+
             {
+                Recepcionista recepcionista = (Recepcionista) usuario;
                 do {
                     System.out.println("Menu: RECEPCIONISTA");
                     System.out.println("1. Realizar Check-Ins.");
@@ -249,36 +256,299 @@ public class Main { public static void main(String[] args){
                     System.out.println("5. Gestionar reservas.");
                     System.out.println("6. Gestionar ocupaciones");
                     System.out.println("7. Volver atrás.");
+                    try {
                     opc = scanner.nextInt();
 
                     switch (opc)
                     {
-                        case 1:
-                        {
+                        case 1: {
                             scanner.nextLine();
-                            System.out.println("------------REALIZAR CHECK-INS------------");
+
+                            System.out.println("\n----- REALIZAR CHECK-IN -----");
+                            System.out.println("1. Con reserva.");
+                            System.out.println("2. Sin reserva.");
+                            System.out.println("0. Volver.");
+                            System.out.print("Seleccione una opción: ");
+
+                            try {
+                                int opcionCheckIn = Integer.parseInt(scanner.nextLine());
+
+                                switch (opcionCheckIn) {
+                                    case 1 -> {
+                                        System.out.print("Número de reserva: ");
+                                        int reservaId = Integer.parseInt(scanner.nextLine());
+
+                                        Reserva reserva = gestorReservas.buscarPorID(reservaId);
+
+                                        if (reserva == null) {
+                                            System.out.println("La reserva no existe.");
+                                            break;
+                                        }
+
+                                        Ocupacion ocupacion = recepcionista.realizarCheckIn(reserva);
+
+                                        System.out.println("Check-in realizado correctamente.");
+                                        System.out.println("Número de ocupación: " + ocupacion.getId());
+                                    }
+
+                                    case 2 -> {
+                                        System.out.print("Número de habitación: ");
+                                        int numeroHabitacion = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numeroHabitacion);
+
+                                        if (habitacion == null) {
+                                            System.out.println("La habitación no existe.");
+                                            break;
+                                        }
+
+                                        System.out.print("DNI del pasajero: ");
+                                        String dni = scanner.nextLine();
+
+                                        Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                        if (pasajero == null) {
+                                            System.out.println("Debe registrar al pasajero antes del ingreso.");
+                                            break;
+                                        }
+
+                                        System.out.print("Fecha de salida (AAAA-MM-DD): ");
+                                        LocalDate fechaSalida = LocalDate.parse(scanner.nextLine());
+
+                                        Ocupacion ocupacion = recepcionista.realizarCheckIn(habitacion, pasajero, fechaSalida);
+
+                                        System.out.println("Check-in realizado correctamente.");
+                                        System.out.println("Número de ocupación: " + ocupacion.getId());
+                                    }
+
+                                    case 0 -> {
+                                        // Volver al menú de recepcionista.
+                                    }
+
+                                    default -> System.out.println("Opción inválida.");
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (DateTimeParseException ex) {
+                                System.out.println("Fecha inválida. Use el formato AAAA-MM-DD.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
-                        case 2:
-                        {
+                        case 2: {
                             scanner.nextLine();
-                            System.out.println("------------REALIZAR CHECK-OUTS------------");
+
+                            try {
+                                System.out.println("\n----- REALIZAR CHECK-OUT -----");
+                                System.out.print("Número de ocupación: ");
+
+                                int ocupacionId = Integer.parseInt(scanner.nextLine());
+
+                                Ocupacion ocupacion = gestorOcupaciones.buscarPorID(ocupacionId);
+
+                                if (ocupacion == null) {
+                                    System.out.println("La ocupación no existe.");
+                                    break;
+                                }
+
+                                recepcionista.realizarCheckOut(ocupacion);
+
+                                System.out.println("Check-out realizado correctamente.");
+                                System.out.println("La habitación quedó en estado LIMPIEZA.");
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
-                        case 3:
-                        {
+                        case 3: {
                             scanner.nextLine();
-                            System.out.println("------------GESTIONAR PASAJEROS------------");
+
+                            System.out.println("\n----- GESTIONAR PASAJEROS -----");
                             System.out.println("1. Cargar pasajero.");
                             System.out.println("2. Buscar pasajero.");
                             System.out.println("3. Actualizar pasajero.");
                             System.out.println("4. Listar pasajeros.");
                             System.out.println("5. Listar alojados.");
                             System.out.println("6. Eliminar pasajero.");
-                            System.out.println("7. Volver atrás.");
+                            System.out.println("0. Volver.");
+                            System.out.print("Seleccione una opción: ");
+
+                            try {
+                                int opcionPasajero =
+                                        Integer.parseInt(scanner.nextLine());
+
+                                switch (opcionPasajero) {
+                                    case 1 -> {
+                                        System.out.print("Nombre de usuario del cliente asociado: ");
+                                        String nombreCliente = scanner.nextLine();
+
+                                        Usuario usuarioCliente = gestorUsuarios.buscarPorID(nombreCliente);
+
+                                        if (!(usuarioCliente instanceof Cliente)) {
+                                            System.out.println("Debe indicar un usuario existente de tipo cliente.");
+                                            break;
+                                        }
+
+                                        Cliente clienteAsociado = (Cliente) usuarioCliente;
+
+                                        System.out.print("Nombre del pasajero: ");
+                                        String nombre = scanner.nextLine();
+
+                                        System.out.print("DNI: ");
+                                        String dni = scanner.nextLine();
+
+                                        System.out.print("Origen: ");
+                                        String origen = scanner.nextLine();
+
+                                        System.out.print("Domicilio de origen: ");
+                                        String domicilio = scanner.nextLine();
+
+                                        Pasajero pasajero = new Pasajero(nombre, dni, origen, domicilio, clienteAsociado);
+
+                                        recepcionista.cargarPasajero(pasajero);
+
+                                        System.out.println("Pasajero registrado correctamente.");
+                                    }
+
+                                    case 2 -> {
+                                        System.out.print("DNI del pasajero: ");
+                                        String dni = scanner.nextLine();
+
+                                        Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                        if (pasajero == null) {
+                                            System.out.println("No existe un pasajero con ese DNI.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- DATOS DEL PASAJERO -----");
+                                        System.out.println(pasajero);
+
+                                        if (pasajero.getCliente() != null) {
+                                            System.out.println("Cliente asociado: " + pasajero.getCliente().getNombreUsuario());
+                                        } else {
+                                            System.out.println("Sin cliente asociado.");
+                                        }
+                                    }
+
+                                    case 3 -> {
+                                        System.out.print("DNI del pasajero que desea actualizar: ");
+                                        String dni = scanner.nextLine();
+
+                                        Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                        if (pasajero == null) {
+                                            System.out.println("No existe un pasajero con ese DNI.");
+                                            break;
+                                        }
+
+                                        System.out.println("Datos actuales:");
+                                        System.out.println(pasajero);
+
+                                        System.out.print("Nuevo nombre: ");
+                                        String nombre = scanner.nextLine();
+
+                                        System.out.print("Nuevo origen: ");
+                                        String origen = scanner.nextLine();
+
+                                        System.out.print("Nuevo domicilio: ");
+                                        String domicilio = scanner.nextLine();
+
+                                        Pasajero actualizado = new Pasajero(nombre, pasajero.getDNI(), origen, domicilio, pasajero.getCliente());
+
+                                        gestorPasajeros.actualizar(actualizado, dni);
+
+                                        System.out.println("Pasajero actualizado correctamente.");
+                                    }
+
+                                    case 4 -> {
+                                        List<Pasajero> pasajeros = gestorPasajeros.listar();
+
+                                        if (pasajeros.isEmpty()) {
+                                            System.out.println("No hay pasajeros registrados.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- LISTA DE PASAJEROS -----");
+
+                                        for (Pasajero pasajero : pasajeros) {
+                                            System.out.println(pasajero);
+                                            System.out.println("-----------------------------");
+                                        }
+                                    }
+
+                                    case 5 -> {
+                                        Map<String, Pasajero> alojados = gestorPasajeros.listarAlojados();
+
+                                        if (alojados.isEmpty()) {
+                                            System.out.println("No hay pasajeros alojados actualmente.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- PASAJEROS ALOJADOS -----");
+
+                                        for (Pasajero pasajero : alojados.values()) {
+                                            System.out.println(pasajero);
+                                            System.out.println("-----------------------------");
+                                        }
+                                    }
+
+                                    case 6 -> {
+                                        System.out.print("DNI del pasajero que desea eliminar: ");
+                                        String dni = scanner.nextLine();
+
+                                        Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                        if (pasajero == null) {
+                                            System.out.println("No existe un pasajero con ese DNI.");
+                                            break;
+                                        }
+
+                                        System.out.println(pasajero);
+                                        System.out.print("¿Confirma la eliminación? (S/N): ");
+
+                                        String confirmacion = scanner.nextLine();
+
+                                        if (!confirmacion.equalsIgnoreCase("S")) {
+                                            System.out.println("Eliminación cancelada.");
+                                            break;
+                                        }
+
+                                        gestorPasajeros.bajar(dni);
+
+                                        System.out.println("Pasajero eliminado correctamente.");
+                                    }
+
+                                    case 0 -> {
+                                        // Volver.
+                                    }
+
+                                    default -> System.out.println("Opción inválida.");
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
-                        case 4:
-                        {
+                        case 4: {
                             scanner.nextLine();
-                            System.out.println("------------GESTIONAR HABITACIONES------------");
+
+                            System.out.println("\n----- GESTIONAR HABITACIONES -----");
                             System.out.println("1. Cargar habitación.");
                             System.out.println("2. Buscar habitación.");
                             System.out.println("3. Actualizar habitación.");
@@ -286,30 +556,525 @@ public class Main { public static void main(String[] args){
                             System.out.println("5. Listar disponibles.");
                             System.out.println("6. Listar no disponibles.");
                             System.out.println("7. Eliminar habitación.");
+                            System.out.println("8. Cambiar estado de habitación.");
+                            System.out.println("0. Volver.");
+                            System.out.print("Seleccione una opción: ");
+
+                            try {
+                                int opcionHabitacion = Integer.parseInt(scanner.nextLine());
+
+                                switch (opcionHabitacion) {
+                                    case 1 -> {
+                                        System.out.print("Número de habitación: ");
+                                        int numero = Integer.parseInt(scanner.nextLine());
+
+                                        System.out.print("Capacidad: ");
+                                        int capacidad = Integer.parseInt(scanner.nextLine());
+
+                                        System.out.print("Precio por noche (ejemplo: 30000.50): ");
+                                        double precio = Double.parseDouble(scanner.nextLine());
+
+                                        Habitacion habitacion = new Habitacion(numero, capacidad, precio, EstadoHabitacion.DISPONIBLE);
+
+                                        gestorHabitaciones.cargarElemento(habitacion);
+
+                                        System.out.println("Habitación registrada correctamente.");
+                                    }
+
+                                    case 2 -> {
+                                        System.out.print("Número de habitación: ");
+                                        int numero = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numero);
+
+                                        if (habitacion == null) {
+                                            System.out.println("No existe una habitación con ese número.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- DATOS DE LA HABITACIÓN -----");
+                                        System.out.println(habitacion);
+                                    }
+
+                                    case 3 -> {
+                                        System.out.print("Número de habitación que desea actualizar: ");
+                                        int numero = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numero);
+
+                                        if (habitacion == null) {
+                                            System.out.println("No existe una habitación con ese número.");
+                                            break;
+                                        }
+
+                                        System.out.println("Datos actuales:");
+                                        System.out.println(habitacion);
+
+                                        System.out.print("Nueva capacidad: ");
+                                        int capacidad = Integer.parseInt(scanner.nextLine());
+
+                                        System.out.print("Nuevo precio por noche: ");
+                                        double precio = Double.parseDouble(scanner.nextLine());
+
+                                        Habitacion actualizada = new Habitacion(habitacion.getNumero(), capacidad, precio, habitacion.getEstado());
+
+                                        gestorHabitaciones.actualizar(actualizada, numero);
+
+                                        System.out.println("Habitación actualizada correctamente.");
+                                    }
+
+                                    case 4 -> {
+                                        List<Habitacion> habitaciones = gestorHabitaciones.listar();
+
+                                        if (habitaciones.isEmpty()) {
+                                            System.out.println("No hay habitaciones registradas.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- LISTA DE HABITACIONES -----");
+
+                                        for (Habitacion habitacion : habitaciones) {
+                                            System.out.println(habitacion);
+                                            System.out.println("--------------------------------");
+                                        }
+                                    }
+
+                                    case 5 -> {
+                                        List<Habitacion> disponibles = gestorHabitaciones.listarDisponibles();
+
+                                        if (disponibles.isEmpty()) {
+                                            System.out.println("No hay habitaciones disponibles actualmente.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- HABITACIONES DISPONIBLES -----");
+
+                                        for (Habitacion habitacion : disponibles) {
+                                            System.out.println(habitacion);
+                                            System.out.println("-----------------------------------");
+                                        }
+                                    }
+
+                                    case 6 -> {
+                                        List<Habitacion> noDisponibles = gestorHabitaciones.listarNoDisponibles();
+
+                                        if (noDisponibles.isEmpty()) {
+                                            System.out.println("No hay habitaciones no disponibles.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- HABITACIONES NO DISPONIBLES -----");
+
+                                        for (Habitacion habitacion : noDisponibles) {
+                                            System.out.println(habitacion);
+                                            System.out.println("--------------------------------------");
+                                        }
+                                    }
+
+                                    case 7 -> {
+                                        System.out.print("Número de habitación que desea eliminar: ");
+                                        int numero = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numero);
+
+                                        if (habitacion == null) {
+                                            System.out.println("No existe una habitación con ese número.");
+                                            break;
+                                        }
+
+                                        System.out.println(habitacion);
+                                        System.out.print("¿Confirma la eliminación? (S/N): ");
+
+                                        String confirmacion = scanner.nextLine();
+
+                                        if (!confirmacion.equalsIgnoreCase("S")) {
+                                            System.out.println("Eliminación cancelada.");
+                                            break;
+                                        }
+
+                                        gestorHabitaciones.bajar(numero);
+
+                                        System.out.println("Habitación eliminada correctamente.");
+                                    }
+
+                                    case 8 -> {
+                                        System.out.print("Número de habitación: ");
+                                        int numero = Integer.parseInt(scanner.nextLine());
+
+                                        EstadoHabitacion[] estados = {EstadoHabitacion.DISPONIBLE, EstadoHabitacion.LIMPIEZA, EstadoHabitacion.REPARACION, EstadoHabitacion.DESINFECCION
+                                        };
+
+                                        for (int i = 0; i < estados.length; i++) {
+                                            System.out.println((i + 1) + ". " + estados[i]);
+                                        }
+
+                                        System.out.print("Seleccione el nuevo estado: ");
+                                        int opcionEstado = Integer.parseInt(scanner.nextLine());
+
+                                        if (opcionEstado < 1 || opcionEstado > estados.length) {
+                                            System.out.println("Estado inválido.");
+                                            break;
+                                        }
+
+                                        gestorHabitaciones.cambiarEstado(numero, estados[opcionEstado - 1]);
+
+                                        System.out.println("Estado actualizado correctamente.");
+                                    }
+
+                                    case 0 -> {
+                                        // Volver.
+                                    }
+
+                                    default -> System.out.println("Opción inválida.");
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar números válidos. " + "Para los decimales use un punto.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
-                        case 5:
-                        {
+                        case 5: {
                             scanner.nextLine();
-                            System.out.println("------------GESTIONAR RESERVAS------------");
-                            System.out.println("1. Cargar reserva.");
+
+                            System.out.println("\n----- GESTIONAR RESERVAS -----");
+                            System.out.println("1. Crear reserva.");
                             System.out.println("2. Buscar reserva.");
                             System.out.println("3. Actualizar reserva.");
                             System.out.println("4. Listar reservas.");
-                            System.out.println("5. Eliminar reserva.");
+                            System.out.println("5. Cancelar reserva.");
+                            System.out.println("6. Confirmar reserva.");
+                            System.out.println("0. Volver.");
+                            System.out.print("Seleccione una opción: ");
+
+                            try {
+                                int opcionReserva = Integer.parseInt(scanner.nextLine());
+
+                                switch (opcionReserva) {
+                                    case 1 -> {
+                                        System.out.print("Nombre de usuario del cliente titular: ");
+                                        String nombreCliente = scanner.nextLine();
+
+                                        Usuario usuarioTitular = gestorUsuarios.buscarPorID(nombreCliente);
+
+                                        if (!(usuarioTitular instanceof Cliente)) {
+                                            System.out.println("Debe indicar un usuario existente de tipo cliente.");
+                                            break;
+                                        }
+
+                                        Cliente titular = (Cliente) usuarioTitular;
+
+                                        System.out.print("Número de habitación: ");
+                                        int numeroHabitacion = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numeroHabitacion);
+
+                                        if (habitacion == null) {
+                                            System.out.println("La habitación no existe.");
+                                            break;
+                                        }
+
+                                        System.out.print("Fecha de ingreso (AAAA-MM-DD): ");
+                                        LocalDate inicio = LocalDate.parse(scanner.nextLine());
+
+                                        System.out.print("Fecha de salida (AAAA-MM-DD): ");
+                                        LocalDate fin = LocalDate.parse(scanner.nextLine());
+
+                                        System.out.print("Cantidad de pasajeros: ");
+                                        int cantidad = Integer.parseInt(scanner.nextLine());
+
+                                        if (cantidad <= 0 || cantidad > habitacion.getCapacidad()) {
+                                            System.out.println("La cantidad debe ser mayor que cero " + "y no superar la capacidad de la habitación.");
+                                            break;
+                                        }
+
+                                        ArrayList<Pasajero> pasajeros = new ArrayList<>();
+                                        boolean listaValida = true;
+
+                                        for (int i = 0; i < cantidad; i++) {
+                                            System.out.print("DNI del pasajero " + (i + 1) + ": ");
+                                            String dni = scanner.nextLine();
+
+                                            Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                            if (pasajero == null) {
+                                                System.out.println("Debe registrar al pasajero antes de crear la reserva.");
+                                                listaValida = false;
+                                                break;
+                                            }
+
+                                            if (pasajeros.contains(pasajero)) {
+                                                System.out.println("No se puede agregar dos veces al mismo pasajero.");
+                                                listaValida = false;
+                                                break;
+                                            }
+
+                                            pasajeros.add(pasajero);
+                                        }
+
+                                        if (!listaValida) {
+                                            break;
+                                        }
+
+                                        Reserva reserva = new Reserva(habitacion, titular, pasajeros, inicio, fin);
+
+                                        recepcionista.crearReserva(reserva);
+
+                                        System.out.println("Reserva creada correctamente. Número: " + reserva.getId());
+                                        System.out.println("Estado: " + reserva.getEstado());
+                                    }
+
+                                    case 2 -> {
+                                        System.out.print("Número de reserva: ");
+                                        int id = Integer.parseInt(scanner.nextLine());
+
+                                        Reserva reserva = gestorReservas.buscarPorID(id);
+
+                                        if (reserva == null) {
+                                            System.out.println("No existe una reserva con ese número.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- DATOS DE LA RESERVA -----");
+                                        System.out.println(reserva);
+
+                                        System.out.println("Pasajeros:");
+
+                                        for (Pasajero pasajero : reserva.getPasajeros()) {
+                                            System.out.println(pasajero);
+                                            System.out.println("-----------------------------");
+                                        }
+                                    }
+                                    case 3 -> {
+                                        System.out.print("Número de reserva que desea actualizar: ");
+                                        int id = Integer.parseInt(scanner.nextLine());
+
+                                        Reserva reserva = gestorReservas.buscarPorID(id);
+
+                                        if (reserva == null) {
+                                            System.out.println("No existe una reserva con ese número.");
+                                            break;
+                                        }
+
+                                        if (reserva.getEstado() != EstadoReserva.PENDIENTE && reserva.getEstado() != EstadoReserva.CONFIRMADA) {
+
+                                            System.out.println("Solo se pueden actualizar reservas pendientes o confirmadas.");
+                                            break;
+                                        }
+
+                                        System.out.println("Datos actuales:");
+                                        System.out.println(reserva);
+
+                                        System.out.print("Nuevo número de habitación: ");
+                                        int numeroHabitacion = Integer.parseInt(scanner.nextLine());
+
+                                        Habitacion habitacion = gestorHabitaciones.buscarPorID(numeroHabitacion);
+
+                                        if (habitacion == null) {
+                                            System.out.println("La habitación no existe.");
+                                            break;
+                                        }
+
+                                        System.out.print("Nueva fecha de ingreso (AAAA-MM-DD): ");
+                                        LocalDate inicio = LocalDate.parse(scanner.nextLine());
+
+                                        System.out.print("Nueva fecha de salida (AAAA-MM-DD): ");
+                                        LocalDate fin = LocalDate.parse(scanner.nextLine());
+
+                                        Reserva actualizada = new Reserva(reserva.getId(), habitacion, reserva.getTitular(), new ArrayList<>(reserva.getPasajeros()), inicio, fin, reserva.getEstado());
+
+                                        gestorReservas.actualizar(actualizada, id);
+
+                                        System.out.println("Reserva actualizada correctamente.");
+                                    }
+
+                                    case 4 -> {
+                                        List<Reserva> reservas = gestorReservas.listar();
+
+                                        if (reservas.isEmpty()) {
+                                            System.out.println("No hay reservas registradas.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- LISTA DE RESERVAS -----");
+
+                                        for (Reserva reserva : reservas) {
+                                            System.out.println(reserva);
+                                            System.out.println("----------------------------");
+                                        }
+                                    }
+
+                                    case 5 -> {
+                                        System.out.print("Número de reserva que desea cancelar: ");
+                                        int id = Integer.parseInt(scanner.nextLine());
+
+                                        Reserva reserva = gestorReservas.buscarPorID(id);
+
+                                        if (reserva == null) {
+                                            System.out.println("No existe una reserva con ese número.");
+                                            break;
+                                        }
+
+                                        if (reserva.getEstado() != EstadoReserva.PENDIENTE && reserva.getEstado() != EstadoReserva.CONFIRMADA) {
+
+                                            System.out.println("Solo se pueden cancelar reservas pendientes o confirmadas.");
+                                            break;
+                                        }
+
+                                        System.out.println(reserva);
+                                        System.out.print("¿Confirma la cancelación? (S/N): ");
+
+                                        String confirmacion = scanner.nextLine();
+
+                                        if (!confirmacion.toUpperCase().equals("S")) {
+                                            System.out.println("Operación cancelada.");
+                                            break;
+                                        }
+
+                                        gestorReservas.bajar(id);
+
+                                        System.out.println("Reserva cancelada correctamente.");
+                                    }
+
+                                    case 6 -> {
+                                        System.out.print("Número de reserva que desea confirmar: ");
+                                        int id = Integer.parseInt(scanner.nextLine());
+
+                                        gestorReservas.confirmarReserva(id);
+
+                                        System.out.println("Reserva confirmada correctamente.");
+                                    }
+
+                                    case 0 -> {
+                                        // Volver.
+                                    }
+
+                                    default -> System.out.println("Opción inválida.");
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (DateTimeParseException ex) {
+                                System.out.println("Fecha inválida. Use el formato AAAA-MM-DD.");
+                            }
+                            catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
-                        case 6:
-                        {
+                        case 6: {
                             scanner.nextLine();
-                            System.out.println("------------GESTIONAR OCUPACIONES------------");
-                            System.out.println("1. Cargar ocupación.");
-                            System.out.println("2. Buscar ocupación.");
-                            System.out.println("3. Actualizar ocupación.");
-                            System.out.println("4. Listar ocupaciones.");
-                            System.out.println("5. Listar por estado.");
-                            System.out.println("6. Eliminar ocupación.");
+
+                            System.out.println("\n----- GESTIONAR OCUPACIONES -----");
+                            System.out.println("1. Buscar ocupación.");
+                            System.out.println("2. Listar todas.");
+                            System.out.println("3. Listar activas.");
+                            System.out.println("4. Listar finalizadas.");
+                            System.out.println("0. Volver.");
+                            System.out.print("Seleccione una opción: ");
+
+                            try {
+                                int opcionOcupacion =
+                                        Integer.parseInt(scanner.nextLine());
+
+                                switch (opcionOcupacion) {
+                                    case 1 -> {
+                                        System.out.print("Número de ocupación: ");
+                                        int id = Integer.parseInt(scanner.nextLine());
+
+                                        Ocupacion ocupacion = gestorOcupaciones.buscarPorID(id);
+
+                                        if (ocupacion == null) {
+                                            System.out.println("No existe una ocupación con ese número.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- DATOS DE LA OCUPACIÓN -----");
+                                        System.out.println(ocupacion);
+
+                                        System.out.println("Pasajeros: ");
+
+                                        for (Pasajero pasajero : ocupacion.getPasajeros()) {
+                                            System.out.println(pasajero);
+                                            System.out.println("-----------------------------");
+                                        }
+                                    }
+
+                                    case 2 -> {
+                                        List<Ocupacion> ocupaciones = gestorOcupaciones.listar();
+
+                                        if (ocupaciones.isEmpty()) {
+                                            System.out.println("No hay ocupaciones registradas.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- LISTA DE OCUPACIONES -----");
+
+                                        for (Ocupacion ocupacion : ocupaciones) {
+                                            System.out.println(ocupacion);
+                                            System.out.println("--------------------------------");
+                                        }
+                                    }
+
+                                    case 3 -> {
+                                        Map<Integer, Ocupacion> activas = gestorOcupaciones.listarPorActividad(true);
+
+                                        if (activas.isEmpty()) {
+                                            System.out.println("No hay ocupaciones activas.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- OCUPACIONES ACTIVAS -----");
+
+                                        for (Ocupacion ocupacion : activas.values()) {
+                                            System.out.println(ocupacion);
+                                            System.out.println("-------------------------------");
+                                        }
+                                    }
+
+                                    case 4 -> {
+                                        Map<Integer, Ocupacion> finalizadas = gestorOcupaciones.listarPorActividad(false);
+
+                                        if (finalizadas.isEmpty()) {
+                                            System.out.println("No hay ocupaciones finalizadas.");
+                                            break;
+                                        }
+
+                                        System.out.println("\n----- OCUPACIONES FINALIZADAS -----");
+
+                                        for (Ocupacion ocupacion : finalizadas.values()) {
+                                            System.out.println(ocupacion);
+                                            System.out.println("----------------------------------");
+                                        }
+                                    }
+
+                                    case 0 -> {
+                                        // Volver.
+                                    }
+
+                                    default -> System.out.println("Opción inválida.");
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+                            }
+                            catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+
+                            break;
                         }
                     }
-                } while (opc <= 7);
+                    } catch (InputMismatchException ex) {
+                        scanner.nextLine();
+                        System.out.println("Debe ingresar un numero valido. Intente nuevamente.");
+                    }
+                } while (opc != 7);
             }
 
             case CLIENTE -> {

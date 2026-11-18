@@ -10,6 +10,7 @@ import Repositorio.HabitacionJDBC;
 import Repositorio.OcupacionJDBC;
 import Repositorio.ReservaJDBC;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
@@ -172,5 +173,29 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
 
         reservaJDBC.actualizar(reservaEncontrada, id);
         
+    }
+    public void confirmarReserva(Integer id) throws VReservaInvalidaException, JDBCException {
+
+        if (id == null || id <= 0) {
+            throw new VReservaInvalidaException("Debe indicar un número de reserva válido.");
+        }
+
+        Reserva reserva = reservaJDBC.buscarPorID(id);
+
+        if (reserva == null) {
+            throw new VReservaInvalidaException("La reserva no existe.");
+        }
+
+        if (reserva.getEstado() != EstadoReserva.PENDIENTE) {
+            throw new VReservaInvalidaException("Solo se pueden confirmar reservas pendientes.");
+        }
+
+        if (reserva.getFechaFin() == null || !reserva.getFechaFin().isAfter(LocalDate.now())) {
+
+            throw new VReservaInvalidaException("No se puede confirmar una reserva cuyo período ya terminó.");
+        }
+
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
+        actualizar(reserva, id);
     }
 }
