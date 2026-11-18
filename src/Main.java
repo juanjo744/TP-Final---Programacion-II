@@ -214,9 +214,74 @@ public class Main { public static void main(String[] args){
             {
                 do {
                     System.out.println("Menu: RECEPCIONISTA");
-                    System.out.println("1. Por definir.");
+                    System.out.println("1. Realizar Check-Ins.");
+                    System.out.println("2. Realizar Check-Outs.");
+                    System.out.println("3. Gestionar pasajeros.");
+                    System.out.println("4. Gestionar habitaciones.");
+                    System.out.println("5. Gestionar reservas.");
+                    System.out.println("6. Gestionar ocupaciones");
+                    System.out.println("7. Volver atrás.");
                     opc = scanner.nextInt();
-                } while (opc <= 1);
+
+                    switch (opc)
+                    {
+                        case 1:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------REALIZAR CHECK-INS------------");
+                        }
+                        case 2:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------REALIZAR CHECK-OUTS------------");
+                        }
+                        case 3:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------GESTIONAR PASAJEROS------------");
+                            System.out.println("1. Cargar pasajero.");
+                            System.out.println("2. Buscar pasajero.");
+                            System.out.println("3. Actualizar pasajero.");
+                            System.out.println("4. Listar pasajeros.");
+                            System.out.println("5. Listar alojados.");
+                            System.out.println("6. Eliminar pasajero.");
+                            System.out.println("7. Volver atrás.");
+                        }
+                        case 4:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------GESTIONAR HABITACIONES------------");
+                            System.out.println("1. Cargar habitación.");
+                            System.out.println("2. Buscar habitación.");
+                            System.out.println("3. Actualizar habitación.");
+                            System.out.println("4. Listar habitaciones.");
+                            System.out.println("5. Listar disponibles.");
+                            System.out.println("6. Listar no disponibles.");
+                            System.out.println("7. Eliminar habitación.");
+                        }
+                        case 5:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------GESTIONAR RESERVAS------------");
+                            System.out.println("1. Cargar reserva.");
+                            System.out.println("2. Buscar reserva.");
+                            System.out.println("3. Actualizar reserva.");
+                            System.out.println("4. Listar reservas.");
+                            System.out.println("5. Eliminar reserva.");
+                        }
+                        case 6:
+                        {
+                            scanner.nextLine();
+                            System.out.println("------------GESTIONAR OCUPACIONES------------");
+                            System.out.println("1. Cargar ocupación.");
+                            System.out.println("2. Buscar ocupación.");
+                            System.out.println("3. Actualizar ocupación.");
+                            System.out.println("4. Listar ocupaciones.");
+                            System.out.println("5. Listar por estado.");
+                            System.out.println("6. Eliminar ocupación.");
+                        }
+                    }
+                } while (opc <= 7);
             }
 
             case CLIENTE ->
