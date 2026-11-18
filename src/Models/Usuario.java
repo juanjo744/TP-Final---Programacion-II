@@ -29,6 +29,10 @@ public abstract class Usuario {
         return contrasenia.hashCode()*14;
     }
 
+    public int obtenerHashContrasenia(String contraseniaNueva) {
+        return contraseniaNueva.hashCode()*14;
+    }
+
     public void setContrasenia(String contrasenia) {
         this.contrasenia = contrasenia;
     }
@@ -72,7 +76,6 @@ public abstract class Usuario {
     public String toString() {
         return "Usuario{" +
                 "nombreUsuario='" + nombreUsuario + '\'' +
-                ", contrasenia='" + contrasenia + '\'' +
                 ", sesionActiva=" + sesionActiva +
                 ", tipo=" + tipo +
                 '}';
