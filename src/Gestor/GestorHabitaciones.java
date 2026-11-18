@@ -47,11 +47,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
             throw new VHabitacionInvalidaException("El numero ya esta registrado.");
         }
 
-        try {
-            habitacionJDBC.guardar(habitacion);
-        } catch (JDBCException e) {
-            throw new RuntimeException(e);
-        }
+        habitacionJDBC.guardar(habitacion);
     }
 
 

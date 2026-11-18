@@ -56,35 +56,36 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
     }
 
     @Override
-    public void actualizar(Usuario usuario, String nuevoNombreUsuario) throws ValidacionException, JDBCException {
-
-        if (nuevoNombreUsuario == null || nuevoNombreUsuario.isBlank()) {
-            throw new ValidacionException("Debe indicar el nombre del usuario que desea actualizar.");
-        }
+    public void actualizar(Usuario usuario, String nombreUsuario) throws ValidacionException, JDBCException {
 
         if (usuario == null) {
             throw new ValidacionException("El usuario no puede ser nulo.");
         }
 
-        if (!nuevoNombreUsuario.equals(usuario.getNombreUsuario())) {
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            throw new ValidacionException("Debe indicar el nombre del usuario.");
+        }
+
+        if (!nombreUsuario.equals(usuario.getNombreUsuario())) {
             throw new ValidacionException("No se puede cambiar el nombre de usuario.");
         }
 
-        if (!usuario.tieneContrasenia()) {
-            throw new ValidacionException("Debe indicar una contraseña.");
+        if (usuario.getTipo() == null) {
+            throw new ValidacionException("Debe indicar un tipo de usuario.");
         }
 
-        Usuario usuarioEncontrado = usuarioJDBC.buscarPorID(nuevoNombreUsuario);
+        Usuario existente = usuarioJDBC.buscarPorID(nombreUsuario);
 
-        if (usuarioEncontrado == null) {
-            throw new ValidacionException("No existe un usuario con ese nombre.");
+        if (existente == null) {
+            throw new ValidacionException("El usuario no existe.");
         }
 
-        if (usuario.getTipo() != usuarioEncontrado.getTipo()) {
-            throw new ValidacionException("El cambio de tipo de usuario debe realizarse por separado.");
+        if (existente.getTipo() == TipoUsuario.CLIENTE && usuario.getTipo() != TipoUsuario.CLIENTE) {
+
+            throw new ValidacionException("No se puede cambiar el tipo de una cuenta de cliente.");
         }
 
-        usuarioJDBC.actualizar(usuario, nuevoNombreUsuario);
+        usuarioJDBC.actualizar(usuario, nombreUsuario);
     }
 
     public void actualizarPermisos(Usuario usuario, TipoUsuario nuevoTipo, Usuario admin)  throws ValidacionException, JDBCException
@@ -116,8 +117,20 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
         if (usuario.getTipo() != usuarioEncontrado.getTipo()) {
             throw new ValidacionException("El cambio de tipo de usuario debe realizarse por separado.");
         }
+        if (usuarioEncontrado.getTipo() == TipoUsuario.CLIENTE && nuevoTipo != TipoUsuario.CLIENTE) {
 
+            throw new ValidacionException("No se puede cambiar el tipo de una cuenta de cliente.");
+        }
+
+        TipoUsuario tipoAnterior = usuario.getTipo();
         usuario.setTipo(nuevoTipo);
+
+        try {
+            actualizar(usuario, usuario.getNombreUsuario());
+        } catch (ValidacionException | JDBCException ex) {
+            usuario.setTipo(tipoAnterior);
+            throw ex;
+        }
     }
 
     @Override

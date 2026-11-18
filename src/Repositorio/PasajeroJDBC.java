@@ -72,8 +72,9 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             ps.setString(1, DNI);
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
-                    pasajeroSolicitado = new Pasajero(rs.getString("DNI"),
+                    pasajeroSolicitado = new Pasajero(
                             rs.getString("nombre"),
+                            rs.getString("DNI"),
                             rs.getString("origen"),
                             rs.getString("domicilio"),
                             (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));
@@ -100,8 +101,9 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Pasajero pasajero = new Pasajero(rs.getString("DNI"),
+                Pasajero pasajero = new Pasajero(
                         rs.getString("nombre"),
+                        rs.getString("DNI"),
                         rs.getString("origen"),
                         rs.getString("domicilio"),
                         (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));

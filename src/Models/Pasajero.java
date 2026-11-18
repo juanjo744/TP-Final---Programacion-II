@@ -57,7 +57,7 @@ public class Pasajero {
                 "Documento: " + DNI + ":\n" +
                 "Origen: " + origen + ":\n" +
                 "Domicilio: " + domicilio + ":\n" +
-                "Cuenta asociada: " + null;
+                "Cuenta asociada: " + (cliente != null ? cliente.getNombreUsuario() : "Sin cuenta");
     }
 
     public boolean equals (Object o)

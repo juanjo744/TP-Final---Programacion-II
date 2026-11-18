@@ -26,7 +26,6 @@ public class GestorJDBC {
             reservaJDBC.crearTabla();
             ocupacionJDBC.crearTabla();
         } catch (JDBCException ex) {
-            ex.printStackTrace();
             throw ex;
         }
 

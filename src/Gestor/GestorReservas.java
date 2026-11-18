@@ -98,8 +98,8 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
         if (reservaEncontrada == null){
             throw new VReservaInvalidaException("No existe una reserva con ese numero");
         }
-        if (reservaEncontrada.getEstado() == EstadoReserva.CANCELADA || reservaEncontrada.getEstado() == EstadoReserva.FINALIZADA){
-            throw new VReservaInvalidaException("No se puede modificar una reserva cancelada o finalizada");
+        if (reservaEncontrada.getEstado() != EstadoReserva.PENDIENTE && reservaEncontrada.getEstado() != EstadoReserva.CONFIRMADA) {
+            throw new VReservaInvalidaException("Solo se pueden modificar o cancelar reservas pendientes o confirmadas.");
         }
 
         if (reserva == null){
@@ -165,8 +165,9 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
             throw new VReservaInvalidaException("La reserva no fue encontrada.");
         }
 
-        if (reservaEncontrada.getEstado() == EstadoReserva.CANCELADA || reservaEncontrada.getEstado() == EstadoReserva.FINALIZADA){
-            throw new VReservaInvalidaException("La reserva no se pudo cancelar ya que esta cancelada o finalizada");
+        if (reservaEncontrada.getEstado() != EstadoReserva.PENDIENTE && reservaEncontrada.getEstado() != EstadoReserva.CONFIRMADA) {
+
+            throw new VReservaInvalidaException("Solo se pueden modificar o cancelar reservas pendientes o confirmadas.");
         }
 
         reservaEncontrada.setEstado(EstadoReserva.CANCELADA);

@@ -36,8 +36,8 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
         if (pasajero == null){
             throw new VPasajeroInvalidoException("Debe ingresar un pasajero válido.");
         }
-        if (pasajero.getDNI() == null){
-            throw new VPasajeroInvalidoException("El pasajero debe estar identificado por su número de documento.");
+        if (pasajero.getDNI() == null || !pasajero.getDNI().matches("[0-9]{8}")) {
+            throw new VPasajeroInvalidoException("El DNI debe contener exactamente ocho números.");
         }
         if (pasajero.getNombre() == null){
             throw new VPasajeroInvalidoException("El pasajero debe tener un nombre asociado.");
@@ -57,11 +57,9 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
 
     @Override
     public Pasajero buscarPorID(String DNI) throws VPasajeroInvalidoException, JDBCException {
-        if (DNI == null)
-            throw new VPasajeroInvalidoException("Debe ingresar un número de documento");
-
-        if (DNI.length() != 8)
-            throw new VPasajeroInvalidoException("Debe ingresar un DNI válido.");
+        if (DNI == null || !DNI.matches("[0-9]{8}")) {
+            throw new VPasajeroInvalidoException("El DNI debe contener exactamente ocho números.");
+        }
 
         return pasajeroJDBC.buscarPorID(DNI);
     }
@@ -73,6 +71,9 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
         }
         if (pasajero.getDNI() == null){
             throw new VPasajeroInvalidoException("El pasajero debe estar identificado por su número de documento.");
+        }
+        if (!DNI.equals(pasajero.getDNI())) {
+            throw new VPasajeroInvalidoException("No se puede cambiar el DNI del pasajero.");
         }
         if (pasajero.getNombre() == null){
             throw new VPasajeroInvalidoException("El pasajero debe tener un nombre asociado.");
@@ -136,11 +137,10 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
 
     @Override
     public void bajar(String DNI) throws VPasajeroInvalidoException, JDBCException {
-        if (DNI == null)
-            throw new VPasajeroInvalidoException("Debe ingresar un número de documento");
 
-        if (DNI.length() != 8)
-            throw new VPasajeroInvalidoException("Debe ingresar un DNI válido.");
+        if (DNI == null || !DNI.matches("[0-9]{8}")) {
+            throw new VPasajeroInvalidoException("El DNI debe contener exactamente ocho números.");
+        }
 
         Pasajero pasajeroEncontrado = pasajeroJDBC.buscarPorID(DNI);
 

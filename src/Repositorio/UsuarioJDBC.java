@@ -173,7 +173,8 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
     }
 
     @Override
-    public void actualizar(Usuario usuario, String nuevoTipo) throws JDBCException {
+    public void actualizar(Usuario usuario, String nombreUsuario)
+            throws JDBCException {
 
         String sql = """
             UPDATE Usuario
@@ -186,16 +187,17 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
         try (Connection conn = db.crearConexion();
              PreparedStatement consulta = conn.prepareStatement(sql)) {
 
-            consulta.setString(1, nuevoTipo);
-            consulta.setString(2, usuario.getNombreUsuario());
+            consulta.setString(1, usuario.getTipo().name());
+            consulta.setString(2, nombreUsuario);
 
-            consulta.executeUpdate();
+            if (consulta.executeUpdate() != 1) {
+                throw new SQLException("No se pudo actualizar el tipo del usuario.");
+            }
 
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo actualizar el usuario.", ex);
         }
     }
-
     @Override
     public void eliminar(String nombreUsuario) throws JDBCException {
         String sql = "DELETE FROM Usuario WHERE nombreUsuario = ?";

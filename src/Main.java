@@ -156,19 +156,16 @@ public class Main { public static void main(String[] args){
                                 case 1:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.ADMINISTRADOR, usuario);
-                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.ADMINISTRADOR.name());
                                     break;
                                 }
                                 case 2:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.RECEPCIONISTA, usuario);
-                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.RECEPCIONISTA.name());
                                     break;
                                 }
                                 case 3:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.CLIENTE, usuario);
-                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.CLIENTE.name());
                                     break;
                                 }
                                 default:
@@ -208,8 +205,6 @@ public class Main { public static void main(String[] args){
                             }
 
                             gestorUsuarios.bajar(identificador);
-
-                            gestorUsuarios.bajar(identificador);
                             break;
                         }
                         case 6:
@@ -240,7 +235,7 @@ public class Main { public static void main(String[] args){
                         System.out.println("La creacion del backup fue interrumpida.");
                         return;
                     }
-                } while (opc != 6);
+                } while (opc != 7);
             }
 
             case RECEPCIONISTA ->
