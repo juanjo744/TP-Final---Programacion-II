@@ -155,4 +155,20 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
 
         usuarioJDBC.eliminar(nombreUsuario);
     }
+    public void cambiarContrasenia(String nombreUsuario, String nuevaContrasenia) throws ValidacionException, JDBCException {
+
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            throw new ValidacionException("Debe indicar un nombre de usuario.");
+        }
+
+        if (nuevaContrasenia == null || nuevaContrasenia.isBlank()) {
+            throw new ValidacionException("Debe indicar una contraseña nueva.");
+        }
+
+        if (usuarioJDBC.buscarPorID(nombreUsuario) == null) {
+            throw new ValidacionException("No existe un usuario con ese nombre.");
+        }
+
+        usuarioJDBC.actualizarContrasenia(nombreUsuario, nuevaContrasenia);
+    }
 }

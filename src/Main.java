@@ -78,7 +78,7 @@ public class Main { public static void main(String[] args){
                     System.out.println("1. Crear usuario.");
                     System.out.println("2. Ver usuarios.");
                     System.out.println("3. Reasignar permisos a usuario.");
-                    System.out.println("4. Actualizar usuario.");
+                    System.out.println("4. Cambiar contraseña de usuario.");
                     System.out.println("5. Eliminar usuario.");
                     System.out.println("6. Crear backup.");
                     System.out.println("7. Salir.");
@@ -179,21 +179,21 @@ public class Main { public static void main(String[] args){
                             }
                             break;
                         }
-                        case 4:
-                        {
+                        case 4: {
                             scanner.nextLine();
-                            System.out.println("------------ACTUALIZAR USUARIO------------");
-                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
-                            System.out.println("Elija un usuario para modificar.");
+
+                            System.out.println("----- CAMBIAR CONTRASEÑA -----");
+                            System.out.println(gestorUsuarios.listarString(gestorUsuarios.listar()));
+
+                            System.out.print("Nombre del usuario: ");
                             String identificador = scanner.nextLine();
-                            System.out.println("Elija su nuevo nombre de usuario: ");
-                            String nuevoNombreUsuario = scanner.nextLine();
-                            System.out.println("Elija su nueva contraseña: ");
+
+                            System.out.print("Nueva contraseña: ");
                             String nuevaContrasenia = scanner.nextLine();
 
-                            Usuario usuarioActualizar = gestorUsuarios.buscarPorID(identificador);
-                            gestorUsuarios.actualizar(usuarioActualizar, nuevoNombreUsuario);
-                            usuarioJDBC.actualizarUsuario(usuarioActualizar, nuevoNombreUsuario, nuevaContrasenia);
+                            gestorUsuarios.cambiarContrasenia(identificador, nuevaContrasenia);
+
+                            System.out.println("Contraseña actualizada correctamente.");
                             break;
                         }
                         case 5:

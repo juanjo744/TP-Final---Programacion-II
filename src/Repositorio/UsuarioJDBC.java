@@ -148,12 +148,11 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
     }
 
 
-    public void actualizarUsuario(Usuario usuario, String nuevoNombreUsuario, String nuevaContrasenia) throws JDBCException {
+    public void actualizarContrasenia(String nombreUsuario, String nuevaContrasenia) throws JDBCException {
 
         String sql = """
             UPDATE Usuario
             SET contrasenia = ?
-            SET nombreUsuario = ?
             WHERE nombreUsuario = ?
             """;
 
@@ -162,14 +161,14 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
         try (Connection conn = db.crearConexion();
              PreparedStatement consulta = conn.prepareStatement(sql)) {
 
-            consulta.setInt(1, usuario.obtenerHashContrasenia(nuevaContrasenia));
-            consulta.setString(2, nuevoNombreUsuario);
-            consulta.setString(3, usuario.getNombreUsuario());
+            int hash = nuevaContrasenia.hashCode() * 14;
 
+            consulta.setInt(1, hash);
+            consulta.setString(2, nombreUsuario);
             consulta.executeUpdate();
 
         } catch (SQLException ex) {
-            throw new JDBCException("No se pudo actualizar el usuario.", ex);
+            throw new JDBCException("No se pudo actualizar la contraseña.", ex);
         }
     }
 
