@@ -67,4 +67,14 @@ public abstract class Usuario {
     public boolean tieneContrasenia() {
         return contrasenia != null && !contrasenia.isBlank();
     }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "nombreUsuario='" + nombreUsuario + '\'' +
+                ", contrasenia='" + contrasenia + '\'' +
+                ", sesionActiva=" + sesionActiva +
+                ", tipo=" + tipo +
+                '}';
+    }
 }
