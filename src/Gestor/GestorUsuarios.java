@@ -89,6 +89,12 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
 
     public void actualizarPermisos(Usuario usuario, TipoUsuario nuevoTipo, Usuario admin)  throws ValidacionException, JDBCException
     {
+        if (usuario == null) {
+            throw new ValidacionException("El usuario no fue encontrado.");
+        }
+        if (admin == null) {
+            throw new ValidacionException("Debe indicar el administrador que realiza la operacion.");
+        }
         if (usuario.getNombreUsuario().equals(admin.getNombreUsuario())) {
             throw new ValidacionException("No puedes modificar tus propios permisos.");
         }

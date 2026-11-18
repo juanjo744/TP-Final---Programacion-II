@@ -23,7 +23,7 @@ public class Administrador extends Usuario {
 
     public void asignarPermisos(Usuario usuario, TipoUsuario nuevoTipo) throws ValidacionException, JDBCException
     {
-        gestorUsuarios.actualizarPermisos(usuario, nuevoTipo);
+        gestorUsuarios.actualizarPermisos(usuario, nuevoTipo, this);
     }
 
     public void crearBackup() throws IOException, InterruptedException {

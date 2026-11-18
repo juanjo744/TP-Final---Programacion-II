@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class Main { public static void main(String[] args){
     HabitacionJDBC habitacionJDBC = new HabitacionJDBC();
@@ -64,13 +65,14 @@ public class Main { public static void main(String[] args){
         Usuario usuario = usuarioJDBC.autenticar(nombreUsuario, contrasenia);
 
         System.out.println("Programa de gestión hotelera. Bienvenido " + usuario.getNombreUsuario() + ".");
-        int opc;
+        int opc = 0;
 
         switch (usuario.getTipo())
         {
             case ADMINISTRADOR ->
             {
                 do {
+                    try {
 
                     System.out.println("Menu: ADMINISTRADOR");
                     System.out.println("1. Crear usuario.");
@@ -125,6 +127,7 @@ public class Main { public static void main(String[] args){
                                     break;
                                 }
                             }
+                            break;
                         }
                         case 2:
                         {
@@ -174,6 +177,7 @@ public class Main { public static void main(String[] args){
                                     break;
                                 }
                             }
+                            break;
                         }
                         case 4:
                         {
@@ -216,6 +220,20 @@ public class Main { public static void main(String[] args){
                         {
                             break;
                         }
+                    }
+                    } catch (InputMismatchException ex) {
+                        scanner.nextLine();
+                        System.out.println("Debe ingresar un numero valido. Intente nuevamente.");
+                    } catch (ValidacionException ex) {
+                        System.out.println("No se pudo completar la operacion: " + ex.getMessage());
+                    } catch (JDBCException ex) {
+                        System.out.println("Error de base de datos: " + ex.getMessage());
+                    } catch (IOException ex) {
+                        System.out.println("No se pudo crear el backup. Revise la ruta y la configuracion.");
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        System.out.println("La creacion del backup fue interrumpida.");
+                        return;
                     }
                 } while (opc <= 6);
             }
@@ -524,15 +542,13 @@ public class Main { public static void main(String[] args){
             }
         }
     } catch (JDBCException e) {
-        throw new RuntimeException(e);
+        System.out.println("Error de base de datos: " + e.getMessage());
     } catch (LoginException e) {
-        throw new RuntimeException(e);
+        System.out.println(e.getMessage());
     } catch (ValidacionException e) {
-        throw new RuntimeException(e);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-        throw new RuntimeException(e);
+        System.out.println("No se pudo completar la operacion: " + e.getMessage());
+    } catch (InputMismatchException e) {
+        System.out.println("Debe ingresar un numero valido.");
     }
 }
 }
