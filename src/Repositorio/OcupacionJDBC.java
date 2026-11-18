@@ -1,6 +1,7 @@
 package Repositorio;
 
 import Connection.DBConnection;
+import Enums.Consumos;
 import Enums.EstadoHabitacion;
 import Exceptions.JDBCException;
 import Interfaces.IHotelJDBC;
@@ -8,6 +9,7 @@ import Models.Habitacion;
 import Models.Ocupacion;
 import Models.Pasajero;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,6 +36,19 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
                 FOREIGN KEY (pasajeroDni) REFERENCES Pasajero(DNI)
             );
             """;
+    private static String sqlConsumo = """
+        CREATE TABLE IF NOT EXISTS Consumo (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            ocupacionId INT NOT NULL,
+            cliente VARCHAR(50) NOT NULL,
+            tipo VARCHAR(30) NOT NULL,
+            precio DECIMAL(10, 2) NOT NULL,
+            fechaHora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ocupacionId) REFERENCES Ocupacion(id),
+            FOREIGN KEY (cliente) REFERENCES Usuario(nombreUsuario)
+        )
+        """;
+
     @Override
     public void crearTabla() throws JDBCException {
         DBConnection db = new DBConnection();
@@ -45,6 +60,9 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
 
             try (PreparedStatement relacion = conn.prepareStatement(sqlOcupacionPasajero)) {
                 relacion.executeUpdate();
+            }
+            try (PreparedStatement consumo = conn.prepareStatement(sqlConsumo)) {
+                consumo.executeUpdate();
             }
 
         } catch (SQLException e) {
@@ -872,6 +890,119 @@ public class OcupacionJDBC implements IHotelJDBC<Ocupacion, Integer> {
 
         } catch (SQLException ex) {
             throw new JDBCException("No se pudo comprobar la disponibilidad de ocupaciones.", ex);
+        }
+    }
+
+    public void registrarConsumo(
+            Integer ocupacionId,
+            String nombreCliente, Consumos consumo) throws JDBCException {
+
+        String sqlOcupacion = """
+            SELECT activa
+            FROM Ocupacion
+            WHERE id = ?
+            FOR UPDATE
+            """;
+
+        String sqlCliente = """
+            SELECT p.DNI
+            FROM OcupacionPasajero op
+            INNER JOIN Pasajero p ON p.DNI = op.pasajeroDni
+            WHERE op.ocupacionId = ? AND p.cliente = ?
+            LIMIT 1
+            """;
+
+        String sqlGuardar = """
+            INSERT INTO Consumo (ocupacionId, cliente, tipo, precio)
+            VALUES (?, ?, ?, ?)
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion()) {
+            conn.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement consulta = conn.prepareStatement(sqlOcupacion)) {
+
+                    consulta.setInt(1, ocupacionId);
+
+                    try (ResultSet resultado = consulta.executeQuery()) {
+                        if (!resultado.next() || !resultado.getBoolean("activa")) {
+                            throw new SQLException("La ocupación no existe o ya terminó.");
+                        }
+                    }
+                }
+
+
+                try (PreparedStatement consulta =
+                             conn.prepareStatement(sqlCliente)) {
+
+                    consulta.setInt(1, ocupacionId);
+                    consulta.setString(2, nombreCliente);
+
+                    try (ResultSet resultado = consulta.executeQuery()) {
+                        if (!resultado.next()) {
+                            throw new SQLException("No estás asociado a esta estadía.");
+                        }
+                    }
+                }
+
+                try (PreparedStatement consulta = conn.prepareStatement(sqlGuardar)) {
+
+                    consulta.setInt(1, ocupacionId);
+                    consulta.setString(2, nombreCliente);
+                    consulta.setString(3, consumo.name());
+                    consulta.setBigDecimal(4, BigDecimal.valueOf(consumo.getPrecio()));
+
+                    if (consulta.executeUpdate() != 1) {
+                        throw new SQLException("No se pudo registrar el consumo.");
+                    }
+                }
+
+                conn.commit();
+
+            } catch (SQLException | RuntimeException ex) {
+                try {
+                    conn.rollback();
+                } catch (SQLException errorRollback) {
+                    ex.addSuppressed(errorRollback);
+                }
+
+                throw ex;
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo registrar el consumo: " + ex.getMessage(), ex);
+        }
+    }
+
+    public BigDecimal obtenerGastos(Integer ocupacionId, String nombreCliente) throws JDBCException {
+
+        String sql = """
+            SELECT COALESCE(SUM(precio), 0) AS total
+            FROM Consumo
+            WHERE ocupacionId = ? AND cliente = ?
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setInt(1, ocupacionId);
+            consulta.setString(2, nombreCliente);
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+                if (resultado.next()) {
+                    return resultado.getBigDecimal("total");
+                }
+
+                return BigDecimal.ZERO;
+            }
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudieron consultar los gastos.", ex);
         }
     }
 

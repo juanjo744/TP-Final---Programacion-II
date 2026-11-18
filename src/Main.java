@@ -2,16 +2,18 @@
 /// GESTÓR DE HOTEL
 /// Alumnos: Juan José Sánchez Miller y Franco Miguel Fanelli
 
+import Enums.Consumos;
 import Exceptions.JDBCException;
 import Exceptions.LoginException;
 import Exceptions.ValidacionException;
 import Gestor.*;
-import Models.Administrador;
-import Models.Cliente;
-import Models.Recepcionista;
-import Models.Usuario;
+import Models.*;
 import Repositorio.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -106,7 +108,7 @@ public class Main { public static void main(String[] args){
                             }
                             case 3:
                             {
-                                Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas);
+                                Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas, gestorOcupaciones);
                                 gestorUsuarios.cargarElemento(usuario1);
                             }
                             default:
@@ -132,9 +134,228 @@ public class Main { public static void main(String[] args){
                 break;
             }
 
-            case CLIENTE ->
-            {
-                break;
+            case CLIENTE -> {
+                Cliente cliente = (Cliente) usuario;
+                int opcionCliente;
+
+                do {
+                    System.out.println("\n----- MENÚ CLIENTE -----");
+                    System.out.println("1. Solicitar reserva.");
+                    System.out.println("2. Ver mis reservas.");
+                    System.out.println("3. Realizar consumo.");
+                    System.out.println("4. Ver gastos adicionales.");
+                    System.out.println("5. Ver total de mi estadía.");
+                    System.out.println("0. Cerrar sesión.");
+                    System.out.print("Seleccione una opción: ");
+
+                    try {
+                        opcionCliente = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Debe ingresar un número.");
+                        continue;
+                    }
+
+                    switch (opcionCliente) {
+                        case 1 -> {
+                            try {
+                                System.out.println("\n----- SOLICITAR RESERVA -----");
+
+                                System.out.print("Número de habitación: ");
+                                int numeroHabitacion = Integer.parseInt(scanner.nextLine());
+
+                                Habitacion habitacion = gestorHabitaciones.buscarPorID(numeroHabitacion);
+
+                                if (habitacion == null) {
+                                    System.out.println("No existe esa habitación.");
+                                    break;
+                                }
+
+                                System.out.print("Fecha de ingreso (AAAA-MM-DD): ");
+                                LocalDate fechaInicio = LocalDate.parse(scanner.nextLine());
+
+                                System.out.print("Fecha de salida (AAAA-MM-DD): ");
+                                LocalDate fechaFin = LocalDate.parse(scanner.nextLine());
+
+                                System.out.print("Cantidad de pasajeros: ");
+                                int cantidad = Integer.parseInt(scanner.nextLine());
+
+                                if (cantidad <= 0 || cantidad > habitacion.getCapacidad()) {
+                                    System.out.println("La cantidad debe ser mayor que cero " + "y no superar la capacidad de la habitación.");
+                                    break;
+                                }
+
+                                ArrayList<Pasajero> pasajeros = new ArrayList<>();
+                                boolean listaValida = true;
+
+                                for (int i = 0; i < cantidad; i++) {
+                                    System.out.print("DNI del pasajero " + (i + 1) + ": ");
+
+                                    String dni = scanner.nextLine();
+                                    Pasajero pasajero = gestorPasajeros.buscarPorID(dni);
+
+                                    if (pasajero == null) {
+                                        System.out.println("El pasajero debe registrarse en recepción.");
+                                        listaValida = false;
+                                        break;
+                                    }
+
+                                    if (pasajero.getCliente() == null || !cliente.getNombreUsuario().equals(pasajero.getCliente().getNombreUsuario())) {
+
+                                        System.out.println("El pasajero no está asociado a tu cuenta.");
+                                        listaValida = false;
+                                        break;
+                                    }
+
+                                    if (pasajeros.contains(pasajero)) {
+                                        System.out.println("No se puede agregar dos veces al mismo pasajero.");
+                                        listaValida = false;
+                                        break;
+                                    }
+
+                                    pasajeros.add(pasajero);
+                                }
+
+                                if (!listaValida) {
+                                    break;
+                                }
+
+                                Reserva reserva = new Reserva(habitacion, cliente, pasajeros, fechaInicio, fechaFin);
+
+                                cliente.solicitarReserva(reserva);
+
+                                System.out.println("Reserva solicitada correctamente. Número: " + reserva.getId());
+                                System.out.println("Estado: " + reserva.getEstado());
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (DateTimeParseException ex) {
+                                System.out.println("Fecha inválida. Use el formato AAAA-MM-DD.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                        }
+
+                        case 2 -> {
+                            try {
+                                System.out.println("\n----- MIS RESERVAS -----");
+
+                                List<Reserva> reservas = gestorReservas.listar();
+                                boolean tieneReservas = false;
+
+                                for (Reserva reserva : reservas) {
+                                    if (reserva.getTitular() != null && cliente.getNombreUsuario().equals(reserva.getTitular().getNombreUsuario())) {
+
+                                        System.out.println("Reserva número: " + reserva.getId());
+                                        System.out.println("Habitación: " + reserva.getHabitacionSolicitada().getNumero());
+                                        System.out.println("Ingreso: " + reserva.getFechaInicio());
+                                        System.out.println("Salida: " + reserva.getFechaFin());
+                                        System.out.println("Estado: " + reserva.getEstado());
+                                        System.out.println("Pasajeros: ");
+
+                                        for (Pasajero pasajero : reserva.getPasajeros()) {
+                                            System.out.println("- " + pasajero.getNombre() + " | DNI: " + pasajero.getDNI());
+                                        }
+
+                                        System.out.println("-------------------------");
+                                        tieneReservas = true;
+                                    }
+                                }
+
+                                if (!tieneReservas) {
+                                    System.out.println("No tenés reservas registradas.");
+                                }
+
+                            } catch (JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                        }
+
+                        case 3 -> {
+                            try {
+                                System.out.println("\n----- REALIZAR CONSUMO -----");
+
+                                System.out.print("Número de ocupación: ");
+                                int ocupacionId = Integer.parseInt(scanner.nextLine());
+
+                                Consumos[] consumos = Consumos.values();
+
+                                for (int i = 0; i < consumos.length; i++) {
+                                    System.out.println((i + 1) + ". " + consumos[i].name() + " - $" + consumos[i].getPrecio());
+                                }
+
+                                System.out.println("0. Volver.");
+                                System.out.print("Seleccione un consumo: ");
+
+                                int opcionConsumo = Integer.parseInt(scanner.nextLine());
+
+                                if (opcionConsumo == 0) {
+                                    break;
+                                }
+
+                                if (opcionConsumo < 1 || opcionConsumo > consumos.length) {
+
+                                    System.out.println("Opción inválida.");
+                                    break;
+                                }
+
+                                Consumos consumoElegido = consumos[opcionConsumo - 1];
+
+                                cliente.realizarConsumo(ocupacionId, consumoElegido);
+
+                                System.out.println("Consumo guardado correctamente: " + consumoElegido.name());
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                        }
+
+                        case 4 -> {
+                            try {
+                                System.out.print("Número de ocupación: ");
+                                int ocupacionId = Integer.parseInt(scanner.nextLine());
+
+                                System.out.println("Tus gastos adicionales en esta estadía: $" + cliente.consultarGastos(ocupacionId).toPlainString());
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                        }
+                        case 5 -> {
+                            try {
+                                System.out.print("Número de ocupación: ");
+                                int ocupacionId = Integer.parseInt(scanner.nextLine());
+
+                                BigDecimal total = cliente.consultarTotalEstadia(ocupacionId);
+
+                                System.out.println("Total del alojamiento y tus consumos: $" + total.toPlainString());
+
+                                System.out.println("Si la estadía sigue activa, es el acumulado " + "hasta hoy, con mínimo de una noche.");
+
+                            } catch (NumberFormatException ex) {
+                                System.out.println("Debe ingresar un número válido.");
+
+                            } catch (ValidacionException | JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                        }
+
+                        case 0 -> {
+                            cliente.cerrarSesion();
+                            System.out.println("Sesión cerrada.");
+                        }
+
+                        default -> System.out.println("Opción inválida.");
+                    }
+
+                } while (cliente.isSesionActiva());
             }
 
             default ->

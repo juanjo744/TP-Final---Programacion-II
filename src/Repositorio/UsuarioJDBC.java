@@ -90,7 +90,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
 
                     switch (tipo) {
                         case CLIENTE:
-                            return new Cliente(nombre, null, gestorReservas);
+                            return new Cliente(nombre, null, gestorReservas, gestorOcupaciones);
 
                         case ADMINISTRADOR:
                             return new Administrador(nombre, null, gestorUsuarios);

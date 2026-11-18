@@ -1,5 +1,6 @@
 package Gestor;
 
+import Enums.Consumos;
 import Enums.EstadoHabitacion;
 import Enums.EstadoReserva;
 import Exceptions.JDBCException;
@@ -15,7 +16,10 @@ import Repositorio.OcupacionJDBC;
 import Repositorio.PasajeroJDBC;
 import Repositorio.ReservaJDBC;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
@@ -253,5 +257,92 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
         }
     }
 
+    public void registrarConsumo(Integer ocupacionId, String nombreCliente, Consumos consumo) throws VOcupacionInvalidaException, JDBCException {
+
+        if (ocupacionId == null || ocupacionId <= 0) {
+            throw new VOcupacionInvalidaException("Debe indicar una ocupación válida.");
+        }
+
+        if (nombreCliente == null || nombreCliente.isBlank()) {
+            throw new VOcupacionInvalidaException("Debe indicar el cliente que realiza el consumo.");
+        }
+
+        if (consumo == null) {
+            throw new VOcupacionInvalidaException("Debe seleccionar un consumo.");
+        }
+
+        ocupacionJDBC.registrarConsumo(ocupacionId, nombreCliente, consumo);
+    }
+
+    public BigDecimal obtenerGastos(Integer ocupacionId, String nombreCliente) throws VOcupacionInvalidaException, JDBCException {
+
+        if (ocupacionId == null || ocupacionId <= 0) {
+            throw new VOcupacionInvalidaException("Debe indicar una ocupación válida.");
+        }
+
+        if (nombreCliente == null || nombreCliente.isBlank()) {
+            throw new VOcupacionInvalidaException("Debe indicar un cliente.");
+        }
+
+        return ocupacionJDBC.obtenerGastos(ocupacionId, nombreCliente);
+    }
+
+    public BigDecimal calcularTotalEstadia(Integer ocupacionId, String nombreCliente) throws VOcupacionInvalidaException, JDBCException {
+
+        if (ocupacionId == null || ocupacionId <= 0) {
+            throw new VOcupacionInvalidaException("Debe indicar una ocupación válida.");
+        }
+
+        if (nombreCliente == null || nombreCliente.isBlank()) {
+            throw new VOcupacionInvalidaException("Debe indicar un cliente.");
+        }
+
+        Ocupacion ocupacion = ocupacionJDBC.buscarPorID(ocupacionId);
+
+        if (ocupacion == null) {
+            throw new VOcupacionInvalidaException("La ocupación no existe.");
+        }
+
+        boolean clienteAsociado = false;
+
+        if (ocupacion.getPasajeros() != null) {
+            for (Pasajero pasajero : ocupacion.getPasajeros()) {
+                if (pasajero != null && pasajero.getCliente() != null && nombreCliente.equals(pasajero.getCliente().getNombreUsuario())) {
+                    clienteAsociado = true;
+                    break;
+                }
+            }
+        }
+
+        if (!clienteAsociado) {
+            throw new VOcupacionInvalidaException("No estás asociado a esta estadía.");
+        }
+
+        LocalDate inicio = ocupacion.getFechaCheckIn();
+
+        LocalDate fin = ocupacion.isActiva() ? LocalDate.now() : ocupacion.getFechaCheckOut();
+
+        if (inicio == null || fin == null || fin.isBefore(inicio)) {
+            throw new VOcupacionInvalidaException("Las fechas de la estadía no son válidas.");
+        }
+
+        if (ocupacion.getHabitacionReservada() == null) {
+            throw new VOcupacionInvalidaException("La ocupación no tiene una habitación asociada.");
+        }
+
+        double precio = ocupacion.getHabitacionReservada().getPrecioPorNoche();
+
+        if (!Double.isFinite(precio) || precio <= 0) {
+            throw new VOcupacionInvalidaException("El precio por noche no es válido.");
+        }
+
+        long noches = Math.max(1, ChronoUnit.DAYS.between(inicio, fin));
+
+        BigDecimal alojamiento = BigDecimal.valueOf(precio).multiply(BigDecimal.valueOf(noches));
+
+        BigDecimal consumos = ocupacionJDBC.obtenerGastos(ocupacionId, nombreCliente);
+
+        return alojamiento.add(consumos).setScale(2, RoundingMode.HALF_UP);
+    }
 
 }

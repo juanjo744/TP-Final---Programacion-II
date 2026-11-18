@@ -3,26 +3,24 @@ package Models;
 import Enums.Consumos;
 import Enums.TipoUsuario;
 import Exceptions.JDBCException;
+import Exceptions.VOcupacionInvalidaException;
 import Exceptions.VReservaInvalidaException;
+import Gestor.GestorOcupaciones;
 import Gestor.GestorReservas;
+
+import java.math.BigDecimal;
 
 public class Cliente extends Usuario {
 
     private GestorReservas gestorReservas;
     private double gastosAdicionales;
+    private GestorOcupaciones gestorOcupaciones;
 
-    public Cliente(String nombreUsuario, String contrasenia, GestorReservas gestorReservas) {
+    public Cliente(String nombreUsuario, String contrasenia, GestorReservas gestorReservas, GestorOcupaciones gestorOcupaciones) {
         super(nombreUsuario, contrasenia, TipoUsuario.CLIENTE);
         this.gestorReservas = gestorReservas;
+        this.gestorOcupaciones = gestorOcupaciones;
         gastosAdicionales = 0;
-    }
-
-    public double getGastosAdicionales() {
-        return gastosAdicionales;
-    }
-
-    public void setGastosAdicionales(double gastosAdicionales) {
-        this.gastosAdicionales = gastosAdicionales;
     }
 
     public void solicitarReserva(Reserva reserva) throws VReservaInvalidaException, JDBCException {
@@ -37,9 +35,18 @@ public class Cliente extends Usuario {
 
     }
 
-    public boolean realizarConsumo(Consumos consumo){
-        this.setGastosAdicionales(gastosAdicionales + consumo.getPrecio());
+    public void realizarConsumo(Integer ocupacionId, Consumos consumo) throws VOcupacionInvalidaException, JDBCException {
 
-        return true;
+        gestorOcupaciones.registrarConsumo(ocupacionId, this.getNombreUsuario(), consumo);
+    }
+
+    public BigDecimal consultarGastos(Integer ocupacionId) throws VOcupacionInvalidaException, JDBCException {
+
+        return gestorOcupaciones.obtenerGastos(ocupacionId, this.getNombreUsuario());
+    }
+
+    public BigDecimal consultarTotalEstadia(Integer ocupacionId) throws VOcupacionInvalidaException, JDBCException {
+
+        return gestorOcupaciones.calcularTotalEstadia(ocupacionId, this.getNombreUsuario());
     }
 }
