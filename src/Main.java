@@ -112,11 +112,13 @@ public class Main { public static void main(String[] args){
                                     Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
                                             gestorReservas, gestorOcupaciones, gestorPasajeros);
                                     gestorUsuarios.cargarElemento(usuario1);
+                                    break;
                                 }
                                 case 3:
                                 {
                                     Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas, gestorOcupaciones);
                                     gestorUsuarios.cargarElemento(usuario1);
+                                    break;
                                 }
                                 default:
                                 {
@@ -152,16 +154,19 @@ public class Main { public static void main(String[] args){
                                 case 1:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.ADMINISTRADOR, usuario);
+                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.ADMINISTRADOR.name());
                                     break;
                                 }
                                 case 2:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.RECEPCIONISTA, usuario);
+                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.RECEPCIONISTA.name());
                                     break;
                                 }
                                 case 3:
                                 {
                                     gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.CLIENTE, usuario);
+                                    usuarioJDBC.actualizar(usuarioActualizar, TipoUsuario.CLIENTE.name());
                                     break;
                                 }
                                 default:
@@ -179,9 +184,12 @@ public class Main { public static void main(String[] args){
                             String identificador = scanner.nextLine();
                             System.out.println("Elija su nuevo nombre de usuario: ");
                             String nuevoNombreUsuario = scanner.nextLine();
+                            System.out.println("Elija su nueva contraseña: ");
+                            String nuevaContrasenia = scanner.nextLine();
 
                             Usuario usuarioActualizar = gestorUsuarios.buscarPorID(identificador);
                             gestorUsuarios.actualizar(usuarioActualizar, nuevoNombreUsuario);
+                            usuarioJDBC.actualizarUsuario(usuarioActualizar, nuevoNombreUsuario, nuevaContrasenia);
                             break;
                         }
                         case 5:

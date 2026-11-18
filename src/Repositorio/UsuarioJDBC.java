@@ -146,12 +146,14 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
 
         return usuarios;
     }
-    @Override
-    public void actualizar(Usuario usuario, String nombreUsuario) throws JDBCException {
+
+
+    public void actualizarUsuario(Usuario usuario, String nuevoNombreUsuario, String nuevaContrasenia) throws JDBCException {
 
         String sql = """
             UPDATE Usuario
             SET contrasenia = ?
+            SET nombreUsuario = ?
             WHERE nombreUsuario = ?
             """;
 
@@ -160,8 +162,33 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
         try (Connection conn = db.crearConexion();
              PreparedStatement consulta = conn.prepareStatement(sql)) {
 
-            consulta.setInt(1, usuario.obtenerHashContrasenia());
-            consulta.setString(2, nombreUsuario);
+            consulta.setInt(1, usuario.obtenerHashContrasenia(nuevaContrasenia));
+            consulta.setString(2, nuevoNombreUsuario);
+            consulta.setString(3, usuario.getNombreUsuario());
+
+            consulta.executeUpdate();
+
+        } catch (SQLException ex) {
+            throw new JDBCException("No se pudo actualizar el usuario.", ex);
+        }
+    }
+
+    @Override
+    public void actualizar(Usuario usuario, String nuevoTipo) throws JDBCException {
+
+        String sql = """
+            UPDATE Usuario
+            SET tipoUsuario = ?
+            WHERE nombreUsuario = ?
+            """;
+
+        DBConnection db = new DBConnection();
+
+        try (Connection conn = db.crearConexion();
+             PreparedStatement consulta = conn.prepareStatement(sql)) {
+
+            consulta.setString(1, nuevoTipo);
+            consulta.setString(2, usuario.getNombreUsuario());
 
             consulta.executeUpdate();
 
