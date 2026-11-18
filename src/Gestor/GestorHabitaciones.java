@@ -4,6 +4,7 @@ import Enums.EstadoHabitacion;
 import Exceptions.JDBCException;
 import Exceptions.VHabitacionInvalidaException;
 import Interfaces.IGestorGenerico;
+import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 import Models.Ocupacion;
 import Repositorio.HabitacionJDBC;
@@ -12,12 +13,13 @@ import Repositorio.OcupacionJDBC;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> {
+public class GestorHabitaciones extends GestorGenerico<Habitacion, Integer> {
 
     private HabitacionJDBC habitacionJDBC;
     private OcupacionJDBC ocupacionJDBC;
 
     public GestorHabitaciones(HabitacionJDBC habitacionJDBC, OcupacionJDBC ocupacionJDBC) {
+        super(habitacionJDBC);
         this.habitacionJDBC = habitacionJDBC;
         this.ocupacionJDBC = ocupacionJDBC;
     }
@@ -36,7 +38,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
         if (habitacion.getCapacidad() <= 0){
             throw new VHabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
         }
-        if (habitacion.getPrecioPorNoche() <= 0){
+        if (habitacion.getPrecioPorNoche() <= 0 || !Double.isFinite(habitacion.getPrecioPorNoche())){
             throw new VHabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
         }
         if (habitacion.getEstado() == null){
@@ -49,8 +51,6 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
         habitacionJDBC.guardar(habitacion);
     }
-
-
 
     @Override
     public Habitacion buscarPorID(Integer id) throws VHabitacionInvalidaException, JDBCException {
@@ -80,7 +80,7 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
         if (habitacion.getCapacidad() <= 0){
             throw new VHabitacionInvalidaException("La capacidad tiene que ser mayor que cero.");
         }
-        if (habitacion.getPrecioPorNoche() <= 0){
+        if (habitacion.getPrecioPorNoche() <= 0 || !Double.isFinite(habitacion.getPrecioPorNoche())){
             throw new VHabitacionInvalidaException("El precio por noche tiene que ser mayor que cero.");
         }
         if (habitacion.getEstado() == null){
@@ -92,12 +92,6 @@ public class GestorHabitaciones implements IGestorGenerico<Habitacion, Integer> 
 
         habitacionJDBC.actualizar(habitacion, id);
 
-    }
-
-    @Override
-    public List<Habitacion> listar() throws JDBCException {
-
-        return habitacionJDBC.listarTodos();
     }
 
     public List<Habitacion> listarDisponibles() throws JDBCException {

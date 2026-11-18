@@ -4,16 +4,18 @@ import Enums.TipoUsuario;
 import Exceptions.JDBCException;
 import Exceptions.ValidacionException;
 import Interfaces.IGestorGenerico;
+import Interfaces.IHotelJDBC;
 import Models.Usuario;
 import Repositorio.UsuarioJDBC;
 
 import java.util.List;
 
-public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
+public class GestorUsuarios extends GestorGenerico<Usuario, String> {
 
     private UsuarioJDBC usuarioJDBC;
 
     public GestorUsuarios(UsuarioJDBC usuarioJDBC) {
+        super(usuarioJDBC);
         this.usuarioJDBC = usuarioJDBC;
     }
 
@@ -24,10 +26,12 @@ public class GestorUsuarios implements IGestorGenerico<Usuario, String> {
             throw new ValidacionException("El usuario no puede ser nulo.");
         }
 
-        if (usuario.getNombreUsuario() == null
-                || usuario.getNombreUsuario().isBlank()) {
-
+        if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().isBlank()) {
             throw new ValidacionException("Debe indicar un nombre de usuario.");
+        }
+
+        if (usuario.getNombreUsuario().length() <= 3) {
+            throw new ValidacionException("El nombre de usuario debe tener 4 caracteres o más.");
         }
 
         if (usuario.getTipo() == null) {

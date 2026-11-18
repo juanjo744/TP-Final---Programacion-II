@@ -7,6 +7,7 @@ import Exceptions.JDBCException;
 import Exceptions.VOcupacionInvalidaException;
 import Exceptions.ValidacionException;
 import Interfaces.IGestorGenerico;
+import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 import Models.Ocupacion;
 import Models.Pasajero;
@@ -22,10 +23,11 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
+public class GestorOcupaciones extends GestorGenerico<Ocupacion, Integer> {
     private OcupacionJDBC ocupacionJDBC;
 
     public GestorOcupaciones(OcupacionJDBC ocupacionJDBC) {
+        super(ocupacionJDBC);
         this.ocupacionJDBC = ocupacionJDBC;
     }
 
@@ -77,11 +79,6 @@ public class GestorOcupaciones implements IGestorGenerico<Ocupacion, Integer> {
             throw new VOcupacionInvalidaException("Debe ingresar un ID válido.");
 
         ocupacionJDBC.actualizar(ocupacion, ID);
-    }
-
-    @Override
-    public List<Ocupacion> listar() throws JDBCException {
-        return ocupacionJDBC.listarTodos();
     }
 
     public Map<Integer, Ocupacion> listarPorActividad(boolean activa) throws JDBCException

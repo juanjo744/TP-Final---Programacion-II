@@ -6,6 +6,7 @@ import Exceptions.JDBCException;
 import Exceptions.VPasajeroInvalidoException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
+import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 import Models.Ocupacion;
 import Models.Pasajero;
@@ -19,16 +20,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
+public class GestorPasajeros extends GestorGenerico<Pasajero, String> {
 
     private PasajeroJDBC pasajeroJDBC;
-    private ReservaJDBC reservaJDBC;
     private OcupacionJDBC ocupacionJDBC;
+    private ReservaJDBC reservaJDBC;
 
     public GestorPasajeros(PasajeroJDBC pasajeroJDBC, OcupacionJDBC ocupacionJDBC, ReservaJDBC reservaJDBC) {
+        super(pasajeroJDBC);
         this.pasajeroJDBC = pasajeroJDBC;
-        this.ocupacionJDBC = ocupacionJDBC;
         this.reservaJDBC = reservaJDBC;
+        this.ocupacionJDBC = ocupacionJDBC;
     }
 
     @Override
@@ -36,12 +38,25 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
         if (pasajero == null){
             throw new VPasajeroInvalidoException("Debe ingresar un pasajero válido.");
         }
+
         if (pasajero.getDNI() == null || !pasajero.getDNI().matches("[0-9]{8}")) {
             throw new VPasajeroInvalidoException("El DNI debe contener exactamente ocho números.");
         }
-        if (pasajero.getNombre() == null){
+        if (pasajero.getNombre() == null || pasajero.getNombre().isBlank()){
             throw new VPasajeroInvalidoException("El pasajero debe tener un nombre asociado.");
         }
+
+        String nombre = pasajero.getNombre().strip();
+
+        if (nombre.length() <= 3)
+        {
+            throw new VPasajeroInvalidoException("El nombre del pasajero debe tener 4 caracteres o más.");
+        }
+
+        if (!nombre.matches("\\p{L}+(?:[ '-]\\p{L}+)*")) {
+            throw new VPasajeroInvalidoException("El nombre solo puede contener letras, espacios, guiones o apóstrofes.");
+        }
+
         if (pasajero.getOrigen() == null || pasajero.getDomicilio() == null){
             throw new VPasajeroInvalidoException("El origen del pasajero debe estar registrado.");
         }
@@ -95,11 +110,6 @@ public class GestorPasajeros implements IGestorGenerico<Pasajero, String> {
             throw new VPasajeroInvalidoException("Debe ingresar un DNI válido.");
 
         pasajeroJDBC.actualizar(pasajero, DNI);
-    }
-
-    @Override
-    public List<Pasajero> listar() throws JDBCException {
-        return pasajeroJDBC.listarTodos();
     }
 
     public Map<String, Pasajero> listarPorEstado(EstadoReserva estado) throws JDBCException {

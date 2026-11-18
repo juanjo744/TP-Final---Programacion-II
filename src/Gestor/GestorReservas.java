@@ -4,6 +4,7 @@ import Enums.EstadoReserva;
 import Exceptions.JDBCException;
 import Exceptions.VReservaInvalidaException;
 import Interfaces.IGestorGenerico;
+import Interfaces.IHotelJDBC;
 import Models.Habitacion;
 import Models.Reserva;
 import Repositorio.HabitacionJDBC;
@@ -13,13 +14,14 @@ import Repositorio.ReservaJDBC;
 import java.time.LocalDate;
 import java.util.List;
 
-public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
+public class GestorReservas extends GestorGenerico<Reserva, Integer> {
 
     private ReservaJDBC reservaJDBC;
     private HabitacionJDBC habitacionJDBC;
     private OcupacionJDBC ocupacionJDBC;
 
     public GestorReservas(ReservaJDBC reservaJDBC, HabitacionJDBC habitacionJDBC, OcupacionJDBC ocupacionJDBC) {
+        super(reservaJDBC);
         this.reservaJDBC = reservaJDBC;
         this.habitacionJDBC = habitacionJDBC;
         this.ocupacionJDBC = ocupacionJDBC;
@@ -42,6 +44,10 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
         }
         if (!reserva.getFechaFin().isAfter(reserva.getFechaInicio())){
             throw new VReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
+        }
+        if (reserva.getFechaInicio().isAfter(LocalDate.now()) || reserva.getFechaFin().isAfter(LocalDate.now()))
+        {
+            throw new VReservaInvalidaException("No puedes crear reservas para el pasado.");
         }
         if (reserva.getPasajeros() == null || reserva.getPasajeros().isEmpty()){
             throw new VReservaInvalidaException("Tiene que indicar al menos un pasajero.");
@@ -142,11 +148,6 @@ public class GestorReservas implements IGestorGenerico<Reserva, Integer> {
 
         reservaJDBC.actualizar(reserva, id);
 
-    }
-
-    @Override
-    public List<Reserva> listar() throws JDBCException {
-        return reservaJDBC.listarTodos();
     }
 
     @Override
