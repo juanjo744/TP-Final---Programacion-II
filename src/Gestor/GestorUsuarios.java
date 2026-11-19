@@ -12,6 +12,7 @@ import java.util.List;
 
 public class GestorUsuarios extends GestorGenerico<Usuario, String> {
 
+    private static final int MINIMO_CONTRASENIA = 8;
     private UsuarioJDBC usuarioJDBC;
 
     public GestorUsuarios(UsuarioJDBC usuarioJDBC) {
@@ -41,6 +42,8 @@ public class GestorUsuarios extends GestorGenerico<Usuario, String> {
         if (!usuario.tieneContrasenia()) {
             throw new ValidacionException("Debe indicar una contraseña.");
         }
+
+        validarLongitudContrasenia(usuario.longitudContrasenia());
 
         if (usuarioJDBC.buscarPorID(usuario.getNombreUsuario()) != null) {
             throw new ValidacionException("El nombre de usuario ya está registrado.");
@@ -143,11 +146,16 @@ public class GestorUsuarios extends GestorGenerico<Usuario, String> {
     }
 
     public String listarString(List<Usuario> usuarioList) throws JDBCException {
+        return listarString(usuarioList, null);
+    }
+
+    public String listarString(List<Usuario> usuarioList, Usuario usuarioEnSesion) {
         StringBuilder sb = new StringBuilder("LISTA DE USUARIOS:\n");
 
         for (Usuario u : usuarioList)
         {
-            sb.append(u.toString());
+            boolean enSesion = usuarioEnSesion != null && u.getNombreUsuario().equals(usuarioEnSesion.getNombreUsuario());
+            sb.append(enSesion ? usuarioEnSesion : u);
         }
 
         return sb.toString();
@@ -178,10 +186,18 @@ public class GestorUsuarios extends GestorGenerico<Usuario, String> {
             throw new ValidacionException("Debe indicar una contraseña nueva.");
         }
 
+        validarLongitudContrasenia(nuevaContrasenia.strip().length());
+
         if (usuarioJDBC.buscarPorID(nombreUsuario) == null) {
             throw new ValidacionException("No existe un usuario con ese nombre.");
         }
 
         usuarioJDBC.actualizarContrasenia(nombreUsuario, nuevaContrasenia);
+    }
+
+    private void validarLongitudContrasenia(int longitud) throws ValidacionException {
+        if (longitud < MINIMO_CONTRASENIA) {
+            throw new ValidacionException("La contraseña debe tener al menos " + MINIMO_CONTRASENIA + " caracteres.");
+        }
     }
 }

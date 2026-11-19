@@ -22,7 +22,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             "nombre VARCHAR(100) NOT NULL, " +
             "origen VARCHAR(60) NOT NULL, " +
             "domicilio VARCHAR(150) NOT NULL, " +
-            "cliente VARCHAR(50) NOT NULL, " +
+            "cliente VARCHAR(50) NULL, " +
             "FOREIGN KEY (cliente) REFERENCES Usuario(nombreUsuario)" +
             ");";
 
@@ -34,6 +34,25 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
              PreparedStatement ps = conn.prepareStatement(sqlPasajero)) {
 
             ps.executeUpdate();
+
+            String columnaObligatoria = """
+                SELECT 1 FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = 'pasajero'
+                  AND COLUMN_NAME = 'cliente' AND IS_NULLABLE = 'NO'
+                """;
+
+            boolean requiereMigracion;
+            try (PreparedStatement consulta = conn.prepareStatement(columnaObligatoria);
+                 ResultSet resultado = consulta.executeQuery()) {
+                requiereMigracion = resultado.next();
+            }
+
+            if (requiereMigracion) {
+                try (PreparedStatement migracion = conn.prepareStatement(
+                        "ALTER TABLE Pasajero MODIFY COLUMN cliente VARCHAR(50) NULL")) {
+                    migracion.executeUpdate();
+                }
+            }
 
         } catch (SQLException ex) {
             throw new JDBCException("Error al crear la tabla de pasajeros.", ex);
@@ -51,7 +70,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             ps.setString(2, pasajero.getNombre());
             ps.setString(3, pasajero.getOrigen());
             ps.setString(4, pasajero.getDomicilio());
-            ps.setString(5, pasajero.getCliente().getNombreUsuario());
+            ps.setString(5, pasajero.getCliente() == null ? null : pasajero.getCliente().getNombreUsuario());
 
             ps.executeUpdate();
         } catch (SQLException ex) {
@@ -77,7 +96,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
                             rs.getString("DNI"),
                             rs.getString("origen"),
                             rs.getString("domicilio"),
-                            (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));
+                            buscarCliente(usuarioJDBC, rs.getString("cliente")));
 
                     return pasajeroSolicitado;
                 } else
@@ -106,7 +125,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
                         rs.getString("DNI"),
                         rs.getString("origen"),
                         rs.getString("domicilio"),
-                        (Cliente) usuarioJDBC.buscarPorID(rs.getString("cliente")));
+                        buscarCliente(usuarioJDBC, rs.getString("cliente")));
 
                 pasajeros.add(pasajero);
             }
@@ -116,6 +135,14 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
         } catch (SQLException ex) {
             throw new JDBCException("No se pudieron listar los pasajeros.");
         }
+    }
+
+    private Cliente buscarCliente(UsuarioJDBC usuarioJDBC, String nombreUsuario) throws JDBCException {
+        if (nombreUsuario == null) {
+            return null;
+        }
+        Usuario usuario = usuarioJDBC.buscarPorID(nombreUsuario);
+        return usuario instanceof Cliente cliente ? cliente : null;
     }
 
     @Override
@@ -135,7 +162,7 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
             ps.setString(1, pasajero.getNombre());
             ps.setString(2, pasajero.getOrigen());
             ps.setString(3, pasajero.getDomicilio());
-            ps.setString(4, pasajero.getCliente().getNombreUsuario());
+            ps.setString(4, pasajero.getCliente() == null ? null : pasajero.getCliente().getNombreUsuario());
             ps.setString(5, DNI);
 
             ps.executeUpdate();

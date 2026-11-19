@@ -1,5 +1,6 @@
 package Gestor;
 
+import Enums.EstadoHabitacion;
 import Enums.EstadoReserva;
 import Exceptions.JDBCException;
 import Exceptions.VReservaInvalidaException;
@@ -12,6 +13,7 @@ import Repositorio.OcupacionJDBC;
 import Repositorio.ReservaJDBC;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GestorReservas extends GestorGenerico<Reserva, Integer> {
@@ -74,6 +76,29 @@ public class GestorReservas extends GestorGenerico<Reserva, Integer> {
 
         reservaJDBC.guardar(reserva);
 
+    }
+
+    public List<Habitacion> listarDisponibles(LocalDate inicio, LocalDate fin, int cantidad)
+            throws VReservaInvalidaException, JDBCException {
+        if (inicio == null || fin == null || inicio.isBefore(LocalDate.now()) || !fin.isAfter(inicio)) {
+            throw new VReservaInvalidaException("El ingreso debe ser hoy o más adelante y la salida debe ser posterior al ingreso.");
+        }
+        if (cantidad <= 0) {
+            throw new VReservaInvalidaException("La cantidad de pasajeros debe ser mayor que cero.");
+        }
+
+        List<Habitacion> disponibles = new ArrayList<>();
+        for (Habitacion habitacion : habitacionJDBC.listarTodos()) {
+            EstadoHabitacion estado = habitacion.getEstado();
+            boolean admiteReservas = estado == EstadoHabitacion.DISPONIBLE
+                    || (estado == EstadoHabitacion.OCUPADA && inicio.isAfter(LocalDate.now()));
+            if (admiteReservas && habitacion.getCapacidad() >= cantidad
+                    && !reservaJDBC.tieneReservaEnPeriodo(habitacion.getNumero(), inicio, fin, null)
+                    && !ocupacionJDBC.tieneOcupacionEnPeriodo(habitacion.getNumero(), inicio, fin)) {
+                disponibles.add(habitacion);
+            }
+        }
+        return disponibles;
     }
 
     @Override

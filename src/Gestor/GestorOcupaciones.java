@@ -284,6 +284,18 @@ public class GestorOcupaciones extends GestorGenerico<Ocupacion, Integer> {
         return ocupacionJDBC.obtenerGastos(ocupacionId, nombreCliente);
     }
 
+    public List<Ocupacion> listarDelCliente(String nombreCliente) throws JDBCException {
+        return ocupacionJDBC.listarTodos().stream()
+                .filter(ocupacion -> perteneceAlCliente(ocupacion, nombreCliente))
+                .toList();
+    }
+
+    private boolean perteneceAlCliente(Ocupacion ocupacion, String nombreCliente) {
+        return ocupacion.getPasajeros() != null && ocupacion.getPasajeros().stream()
+                .anyMatch(pasajero -> pasajero != null && pasajero.getCliente() != null
+                        && nombreCliente.equals(pasajero.getCliente().getNombreUsuario()));
+    }
+
     public BigDecimal calcularTotalEstadia(Integer ocupacionId, String nombreCliente) throws VOcupacionInvalidaException, JDBCException {
 
         if (ocupacionId == null || ocupacionId <= 0) {
@@ -300,18 +312,7 @@ public class GestorOcupaciones extends GestorGenerico<Ocupacion, Integer> {
             throw new VOcupacionInvalidaException("La ocupación no existe.");
         }
 
-        boolean clienteAsociado = false;
-
-        if (ocupacion.getPasajeros() != null) {
-            for (Pasajero pasajero : ocupacion.getPasajeros()) {
-                if (pasajero != null && pasajero.getCliente() != null && nombreCliente.equals(pasajero.getCliente().getNombreUsuario())) {
-                    clienteAsociado = true;
-                    break;
-                }
-            }
-        }
-
-        if (!clienteAsociado) {
+        if (!perteneceAlCliente(ocupacion, nombreCliente)) {
             throw new VOcupacionInvalidaException("No estás asociado a esta estadía.");
         }
 

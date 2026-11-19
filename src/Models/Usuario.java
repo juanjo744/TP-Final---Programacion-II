@@ -72,6 +72,10 @@ public abstract class Usuario {
         return contrasenia != null && !contrasenia.isBlank();
     }
 
+    public int longitudContrasenia() {
+        return contrasenia == null ? 0 : contrasenia.strip().length();
+    }
+
     @Override
     public String toString() {
         return "-----USUARIO-----\n" +

@@ -64,7 +64,7 @@ public class GestorPasajeros extends GestorGenerico<Pasajero, String> {
         Pasajero pasajeroEncontrado = pasajeroJDBC.buscarPorID(pasajero.getDNI());
 
         if (pasajeroEncontrado != null){
-            throw new VPasajeroInvalidoException("Ya existe un pasajero con ese ID.");
+            throw new VPasajeroInvalidoException("Ya existe un pasajero con ese DNI.");
         }
 
         pasajeroJDBC.guardar(pasajero);

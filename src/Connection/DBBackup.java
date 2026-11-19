@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 public class DBBackup {
     private String ejecutable = "C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysqldump.exe";
-    private String mibd = "tp7_agregacion";
+    private String mibd = "2026_C7_JuanJose_SanchezMiller";
     private int numero = 0;
     private Path carpeta = Path.of("Backups").toAbsolutePath();
 
