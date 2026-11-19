@@ -20,50 +20,98 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.io.IOException;
 
-public class Main { public static void main(String[] args){
-    HabitacionJDBC habitacionJDBC = new HabitacionJDBC();
-    ReservaJDBC reservaJDBC = new ReservaJDBC();
-    OcupacionJDBC ocupacionJDBC = new OcupacionJDBC();
-    PasajeroJDBC pasajeroJDBC = new PasajeroJDBC();
-    UsuarioJDBC usuarioJDBC = new UsuarioJDBC();
+public class Main {
+    public static void main(String[] args) {
+        HabitacionJDBC habitacionJDBC = new HabitacionJDBC();
+        ReservaJDBC reservaJDBC = new ReservaJDBC();
+        OcupacionJDBC ocupacionJDBC = new OcupacionJDBC();
+        PasajeroJDBC pasajeroJDBC = new PasajeroJDBC();
+        UsuarioJDBC usuarioJDBC = new UsuarioJDBC();
 
-    GestorHabitaciones gestorHabitaciones = new GestorHabitaciones(habitacionJDBC, ocupacionJDBC);
-    GestorReservas gestorReservas = new GestorReservas(reservaJDBC, habitacionJDBC, ocupacionJDBC);
-    GestorOcupaciones gestorOcupaciones = new GestorOcupaciones(ocupacionJDBC);
-    GestorPasajeros gestorPasajeros = new GestorPasajeros(pasajeroJDBC, ocupacionJDBC, reservaJDBC);
-    GestorUsuarios gestorUsuarios = new GestorUsuarios(usuarioJDBC);
+        GestorHabitaciones gestorHabitaciones = new GestorHabitaciones(habitacionJDBC, ocupacionJDBC);
+        GestorReservas gestorReservas = new GestorReservas(reservaJDBC, habitacionJDBC, ocupacionJDBC);
+        GestorOcupaciones gestorOcupaciones = new GestorOcupaciones(ocupacionJDBC);
+        GestorPasajeros gestorPasajeros = new GestorPasajeros(pasajeroJDBC, ocupacionJDBC, reservaJDBC);
+        GestorUsuarios gestorUsuarios = new GestorUsuarios(usuarioJDBC);
 
-    usuarioJDBC.configurarGestores(gestorReservas, gestorHabitaciones, gestorOcupaciones, gestorPasajeros, gestorUsuarios);
+        usuarioJDBC.configurarGestores(gestorReservas, gestorHabitaciones, gestorOcupaciones, gestorPasajeros, gestorUsuarios);
 
-    try (Scanner scanner = new Scanner(System.in)) {
-        GestorJDBC gestorJDBC = new GestorJDBC();
-        gestorJDBC.cargarTablas();
+        try (Scanner scanner = new Scanner(System.in)) {
+            GestorJDBC gestorJDBC = new GestorJDBC();
+            gestorJDBC.cargarTablas();
 
-        if (gestorUsuarios.listar().isEmpty()) {
+            while (gestorUsuarios.listar().isEmpty()) {
 
-            System.out.println("Configuracion inicial del sistema.");
+                System.out.println("Configuracion inicial del sistema.");
 
-            System.out.println("Nombre del administrador:");
-            String nombreAdmin = scanner.nextLine();
+                System.out.println("Nombre del administrador:");
+                if (!scanner.hasNextLine()) {
+                    return;
+                }
+                String nombreAdmin = scanner.nextLine();
 
-            System.out.println("Contraseña del administrador:");
-            String contraseniaAdmin = scanner.nextLine();
+                System.out.println("Contraseña del administrador:");
+                if (!scanner.hasNextLine()) {
+                    return;
+                }
+                String contraseniaAdmin = scanner.nextLine();
 
-            Administrador admin = new Administrador(nombreAdmin, contraseniaAdmin, gestorUsuarios);
+                Administrador admin = new Administrador(nombreAdmin, contraseniaAdmin, gestorUsuarios);
 
-            gestorUsuarios.cargarElemento(admin);
+                try {
+                    gestorUsuarios.cargarElemento(admin);
+                    System.out.println("Administrador inicial creado correctamente.");
+                    break;
+                } catch (ValidacionException ex) {
+                    System.out.println("No se pudo completar la operacion: " + ex.getMessage());
+                }
+            }
 
-            System.out.println("Administrador inicial creado correctamente.");
+            while (true) {
+                System.out.println("Ingrese su nombre de usuario (0 para salir): ");
+                if (!scanner.hasNextLine()) {
+                    break;
+                }
+                String nombreUsuario = scanner.nextLine();
+                if (nombreUsuario.equals("0")) {
+                    break;
+                }
+
+                System.out.println("Ingrese su contraseña: ");
+                if (!scanner.hasNextLine()) {
+                    break;
+                }
+                String contrasenia = scanner.nextLine();
+
+                Usuario usuario;
+                try {
+                    usuario = usuarioJDBC.autenticar(nombreUsuario, contrasenia);
+                } catch (LoginException ex) {
+                    System.out.println(ex.getMessage());
+                    continue;
+                }
+
+                System.out.println("Programa de gestión hotelera. Bienvenido " + usuario.getNombreUsuario() + ".");
+                try {
+                    mostrarMenu(usuario, scanner, gestorHabitaciones, gestorReservas,
+                            gestorOcupaciones, gestorPasajeros, gestorUsuarios);
+                } finally {
+                    usuario.cerrarSesion();
+                }
+                System.out.println("Sesión cerrada.");
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+            }
+        } catch (JDBCException e) {
+            System.out.println("Error de base de datos: " + e.getMessage());
         }
+    }
 
-        System.out.println("Ingrese su nombre de usuario: ");
-        String nombreUsuario = scanner.nextLine();
-        System.out.println("Ingrese su contraseña: ");
-        String contrasenia = scanner.nextLine();
-
-        Usuario usuario = usuarioJDBC.autenticar(nombreUsuario, contrasenia);
-
-        System.out.println("Programa de gestión hotelera. Bienvenido " + usuario.getNombreUsuario() + ".");
+    private static void mostrarMenu(Usuario usuario, Scanner scanner,
+                                    GestorHabitaciones gestorHabitaciones, GestorReservas gestorReservas,
+                                    GestorOcupaciones gestorOcupaciones, GestorPasajeros gestorPasajeros,
+                                    GestorUsuarios gestorUsuarios) {
         int opc = 0;
 
         switch (usuario.getTipo())
@@ -71,7 +119,7 @@ public class Main { public static void main(String[] args){
             case ADMINISTRADOR ->
             {
                 Administrador administrador = (Administrador) usuario;
-                administrador.iniciarSesion();
+
                 do {
                     try {
 
@@ -82,7 +130,7 @@ public class Main { public static void main(String[] args){
                     System.out.println("4. Cambiar contraseña de usuario.");
                     System.out.println("5. Eliminar usuario.");
                     System.out.println("6. Crear backup.");
-                    System.out.println("7. Salir.");
+                    System.out.println("7. Cerrar sesión.");
                     opc = scanner.nextInt();
 
                     switch (opc) {
@@ -134,14 +182,14 @@ public class Main { public static void main(String[] args){
                         {
                             scanner.nextLine();
                             System.out.println("------------LISTA DE USUARIOS------------");
-                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar(), administrador));
                             break;
                         }
                         case 3:
                         {
                             scanner.nextLine();
                             System.out.println("------------REASIGNAR PERMISOS------------");
-                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar(), administrador));
                             System.out.println("Elija un usuario para modificar su tipo.");
                             String identificador = scanner.nextLine();
 
@@ -181,7 +229,7 @@ public class Main { public static void main(String[] args){
                             scanner.nextLine();
 
                             System.out.println("----- CAMBIAR CONTRASEÑA -----");
-                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar(), administrador));
 
                             System.out.print("Nombre del usuario: ");
                             String identificador = scanner.nextLine();
@@ -198,7 +246,7 @@ public class Main { public static void main(String[] args){
                         {
                             scanner.nextLine();
                             System.out.println("------------ELIMINAR USUARIO------------");
-                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar(), administrador));
                             System.out.println("Elija un usuario para eliminar.");
                             String identificador = scanner.nextLine();
 
@@ -237,13 +285,14 @@ public class Main { public static void main(String[] args){
                         return;
                     }
                 } while (opc != 7);
+                scanner.nextLine();
             }
 
             case RECEPCIONISTA ->
 
             {
                 Recepcionista recepcionista = (Recepcionista) usuario;
-                recepcionista.iniciarSesion();
+
                 do {
                     System.out.println("Menu: RECEPCIONISTA");
                     System.out.println("1. Realizar Check-Ins.");
@@ -253,7 +302,7 @@ public class Main { public static void main(String[] args){
                     System.out.println("5. Gestionar reservas.");
                     System.out.println("6. Gestionar ocupaciones");
                     System.out.println("7. Crear Cliente.");
-                    System.out.println("8. Volver atrás.");
+                    System.out.println("8. Cerrar sesión.");
                     try {
                     opc = scanner.nextInt();
 
@@ -387,17 +436,18 @@ public class Main { public static void main(String[] args){
 
                                 switch (opcionPasajero) {
                                     case 1 -> {
-                                        System.out.print("Nombre de usuario del cliente asociado: ");
-                                        String nombreCliente = scanner.nextLine();
+                                        System.out.print("Usuario del cliente asociado (Enter si no tiene cuenta): ");
+                                        String nombreCliente = scanner.nextLine().strip();
+                                        Cliente clienteAsociado = null;
 
-                                        Usuario usuarioCliente = gestorUsuarios.buscarPorID(nombreCliente);
-
-                                        if (!(usuarioCliente instanceof Cliente)) {
-                                            System.out.println("Debe indicar un usuario existente de tipo cliente.");
-                                            break;
+                                        if (!nombreCliente.isEmpty()) {
+                                            Usuario usuarioCliente = gestorUsuarios.buscarPorID(nombreCliente);
+                                            if (!(usuarioCliente instanceof Cliente cuentaCliente)) {
+                                                System.out.println("Debe indicar un usuario existente de tipo cliente.");
+                                                break;
+                                            }
+                                            clienteAsociado = cuentaCliente;
                                         }
-
-                                        Cliente clienteAsociado = (Cliente) usuarioCliente;
 
                                         System.out.print("Nombre del pasajero: ");
                                         String nombre = scanner.nextLine();
@@ -1084,14 +1134,19 @@ public class Main { public static void main(String[] args){
                     } catch (InputMismatchException ex) {
                         scanner.nextLine();
                         System.out.println("Debe ingresar un numero valido. Intente nuevamente.");
+                    } catch (ValidacionException ex) {
+                        System.out.println("No se pudo completar la operacion: " + ex.getMessage());
+                    } catch (JDBCException ex) {
+                        System.out.println("Error de base de datos: " + ex.getMessage());
                     }
                 } while (opc != 8);
+                scanner.nextLine();
             }
 
             case CLIENTE -> {
                 Cliente cliente = (Cliente) usuario;
-                cliente.iniciarSesion();
-                int opcionCliente;
+
+                int opcionCliente = -1;
 
                 do {
                     System.out.println("\n----- MENÚ CLIENTE -----");
@@ -1100,6 +1155,8 @@ public class Main { public static void main(String[] args){
                     System.out.println("3. Realizar consumo.");
                     System.out.println("4. Ver gastos adicionales.");
                     System.out.println("5. Ver total de mi estadía.");
+                    System.out.println("6. Consultar habitaciones disponibles.");
+                    System.out.println("7. Ver mis ocupaciones.");
                     System.out.println("0. Cerrar sesión.");
                     System.out.print("Seleccione una opción: ");
 
@@ -1111,20 +1168,8 @@ public class Main { public static void main(String[] args){
                     }
 
                     switch (opcionCliente) {
-                        case 1 -> {
+                        case 1, 6 -> {
                             try {
-                                System.out.println("\n----- SOLICITAR RESERVA -----");
-
-                                System.out.print("Número de habitación: ");
-                                int numeroHabitacion = Integer.parseInt(scanner.nextLine());
-
-                                Habitacion habitacion = gestorHabitaciones.buscarPorID(numeroHabitacion);
-
-                                if (habitacion == null) {
-                                    System.out.println("No existe esa habitación.");
-                                    break;
-                                }
-
                                 System.out.print("Fecha de ingreso (AAAA-MM-DD): ");
                                 LocalDate fechaInicio = LocalDate.parse(scanner.nextLine());
 
@@ -1134,8 +1179,28 @@ public class Main { public static void main(String[] args){
                                 System.out.print("Cantidad de pasajeros: ");
                                 int cantidad = Integer.parseInt(scanner.nextLine());
 
-                                if (cantidad <= 0 || cantidad > habitacion.getCapacidad()) {
-                                    System.out.println("La cantidad debe ser mayor que cero " + "y no superar la capacidad de la habitación.");
+                                List<Habitacion> disponibles = gestorReservas.listarDisponibles(fechaInicio, fechaFin, cantidad);
+                                if (disponibles.isEmpty()) {
+                                    System.out.println("No hay habitaciones disponibles para esas fechas y cantidad de pasajeros.");
+                                    break;
+                                }
+
+                                for (Habitacion disponible : disponibles) {
+                                    System.out.printf("Habitación %d | Capacidad: %d | Precio por noche: $%.2f%n",
+                                            disponible.getNumero(), disponible.getCapacidad(), disponible.getPrecioPorNoche());
+                                }
+
+                                if (opcionCliente == 6) {
+                                    break;
+                                }
+
+                                System.out.print("Número de habitación: ");
+                                int numeroHabitacion = Integer.parseInt(scanner.nextLine());
+                                Habitacion habitacion = disponibles.stream()
+                                        .filter(disponible -> disponible.getNumero() == numeroHabitacion)
+                                        .findFirst().orElse(null);
+                                if (habitacion == null) {
+                                    System.out.println("Elegí una de las habitaciones disponibles.");
                                     break;
                                 }
 
@@ -1302,15 +1367,28 @@ public class Main { public static void main(String[] args){
                             }
                         }
 
-                        case 0 -> {
-                            cliente.cerrarSesion();
-                            System.out.println("Sesión cerrada.");
+                        case 7 -> {
+                            try {
+                                List<Ocupacion> ocupaciones = gestorOcupaciones.listarDelCliente(cliente.getNombreUsuario());
+                                if (ocupaciones.isEmpty()) {
+                                    System.out.println("No tenés ocupaciones registradas.");
+                                }
+                                for (Ocupacion ocupacion : ocupaciones) {
+                                    System.out.printf("Ocupación %d | Habitación %d | Ingreso: %s | %s%n",
+                                            ocupacion.getId(), ocupacion.getHabitacionReservada().getNumero(),
+                                            ocupacion.getFechaCheckIn(), ocupacion.isActiva() ? "Activa" : "Finalizada");
+                                }
+                            } catch (JDBCException ex) {
+                                System.out.println(ex.getMessage());
+                            }
                         }
+
+                        case 0 -> { }
 
                         default -> System.out.println("Opción inválida.");
                     }
 
-                } while (cliente.isSesionActiva());
+                } while (opcionCliente != 0);
             }
 
             default ->
@@ -1318,14 +1396,5 @@ public class Main { public static void main(String[] args){
 
             }
         }
-    } catch (JDBCException e) {
-        System.out.println("Error de base de datos: " + e.getMessage());
-    } catch (LoginException e) {
-        System.out.println(e.getMessage());
-    } catch (ValidacionException e) {
-        System.out.println("No se pudo completar la operacion: " + e.getMessage());
-    } catch (InputMismatchException e) {
-        System.out.println("Debe ingresar un numero valido.");
     }
-}
 }
