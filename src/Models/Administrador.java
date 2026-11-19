@@ -17,6 +17,14 @@ public class Administrador extends Usuario {
         this.gestorUsuarios = gestorUsuarios;
     }
 
+    public GestorUsuarios getGestorUsuarios() {
+        return gestorUsuarios;
+    }
+
+    public void setGestorUsuarios(GestorUsuarios gestorUsuarios) {
+        this.gestorUsuarios = gestorUsuarios;
+    }
+
     public void crearUsuario(Usuario usuario) throws ValidacionException, JDBCException {
         gestorUsuarios.cargarElemento(usuario);
     }

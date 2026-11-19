@@ -70,6 +70,7 @@ public class Main { public static void main(String[] args){
         {
             case ADMINISTRADOR ->
             {
+                Administrador administrador = (Administrador) usuario;
                 do {
                     try {
 
@@ -104,7 +105,7 @@ public class Main { public static void main(String[] args){
                                 {
                                     System.out.println("------------CREACIÓN DE USUARIO------------");
                                     Usuario usuario1 = new Administrador(nombreUsuarioN, contraseniaN, gestorUsuarios);
-                                    gestorUsuarios.cargarElemento(usuario1);
+                                    administrador.crearUsuario(usuario1);
 
                                     break;
                                 }
@@ -112,13 +113,13 @@ public class Main { public static void main(String[] args){
                                 {
                                     Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
                                             gestorReservas, gestorOcupaciones, gestorPasajeros);
-                                    gestorUsuarios.cargarElemento(usuario1);
+                                    administrador.crearUsuario(usuario1);
                                     break;
                                 }
                                 case 3:
                                 {
                                     Usuario usuario1 = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas, gestorOcupaciones);
-                                    gestorUsuarios.cargarElemento(usuario1);
+                                    administrador.crearUsuario(usuario1);
                                     break;
                                 }
                                 default:
@@ -132,18 +133,18 @@ public class Main { public static void main(String[] args){
                         {
                             scanner.nextLine();
                             System.out.println("------------LISTA DE USUARIOS------------");
-                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
                             break;
                         }
                         case 3:
                         {
                             scanner.nextLine();
                             System.out.println("------------REASIGNAR PERMISOS------------");
-                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
                             System.out.println("Elija un usuario para modificar su tipo.");
                             String identificador = scanner.nextLine();
 
-                            Usuario usuarioActualizar = gestorUsuarios.buscarPorID(identificador);
+                            Usuario usuarioActualizar = administrador.getGestorUsuarios().buscarPorID(identificador);
                             System.out.println("Defina su nuevo tipo: " +
                                     "1 - Administrador" +
                                     "2 - Recepcionista" +
@@ -155,17 +156,17 @@ public class Main { public static void main(String[] args){
                             {
                                 case 1:
                                 {
-                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.ADMINISTRADOR, usuario);
+                                    administrador.asignarPermisos(usuarioActualizar, TipoUsuario.ADMINISTRADOR);
                                     break;
                                 }
                                 case 2:
                                 {
-                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.RECEPCIONISTA, usuario);
+                                    administrador.asignarPermisos(usuarioActualizar, TipoUsuario.RECEPCIONISTA);
                                     break;
                                 }
                                 case 3:
                                 {
-                                    gestorUsuarios.actualizarPermisos(usuarioActualizar, TipoUsuario.CLIENTE, usuario);
+                                    administrador.asignarPermisos(usuarioActualizar, TipoUsuario.CLIENTE);
                                     break;
                                 }
                                 default:
@@ -179,7 +180,7 @@ public class Main { public static void main(String[] args){
                             scanner.nextLine();
 
                             System.out.println("----- CAMBIAR CONTRASEÑA -----");
-                            System.out.println(gestorUsuarios.listarString(gestorUsuarios.listar()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(gestorUsuarios.listar()));
 
                             System.out.print("Nombre del usuario: ");
                             String identificador = scanner.nextLine();
@@ -187,7 +188,7 @@ public class Main { public static void main(String[] args){
                             System.out.print("Nueva contraseña: ");
                             String nuevaContrasenia = scanner.nextLine();
 
-                            gestorUsuarios.cambiarContrasenia(identificador, nuevaContrasenia);
+                            administrador.getGestorUsuarios().cambiarContrasenia(identificador, nuevaContrasenia);
 
                             System.out.println("Contraseña actualizada correctamente.");
                             break;
@@ -196,7 +197,7 @@ public class Main { public static void main(String[] args){
                         {
                             scanner.nextLine();
                             System.out.println("------------ELIMINAR USUARIO------------");
-                            System.out.println(gestorUsuarios.listarString(usuarioJDBC.listarTodos()));
+                            System.out.println(administrador.getGestorUsuarios().listarString(usuarioJDBC.listarTodos()));
                             System.out.println("Elija un usuario para eliminar.");
                             String identificador = scanner.nextLine();
 
@@ -204,7 +205,7 @@ public class Main { public static void main(String[] args){
                                 throw new ValidacionException("No podés eliminar tu propio usuario mientras estás usando el sistema.");
                             }
 
-                            gestorUsuarios.bajar(identificador);
+                            administrador.getGestorUsuarios().bajar(identificador);
                             break;
                         }
                         case 6:
@@ -212,8 +213,7 @@ public class Main { public static void main(String[] args){
                             scanner.nextLine();
                             System.out.println("------------CREAR BACKUP------------");
                             System.out.println("Ruta elegida: C:\\Users\\Documents");
-                            DBBackup dbBackup = new DBBackup();
-                            dbBackup.crearBackup();
+                            administrador.crearBackup();
                             break;
                         }
                         default:

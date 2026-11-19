@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 public class DBBackup {
     private String ejecutable = "C:\\Users\\Juan\\Documents";
     private String mibd = "mibd";
+    private int numero = 0;
     private Path carpeta = Path.of("Backups").toAbsolutePath();
 
     public String crearBackup() throws IOException, InterruptedException {
@@ -17,8 +18,9 @@ public class DBBackup {
 
         String fecha = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 
-        Path archivo = carpeta.resolve("backup_" + fecha + ".sql");
-
+        Path archivo = carpeta.resolve("backup_" + fecha + "-" + numero + ".sql");
+        numero++;
+        
         ProcessBuilder constructor = new ProcessBuilder(ejecutable, "--login-path=hotel", "--single-transaction", "--result-file=" + archivo, mibd);
 
         constructor.inheritIO();
