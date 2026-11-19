@@ -35,22 +35,22 @@ public class PasajeroJDBC implements IHotelJDBC<Pasajero, String> {
 
             ps.executeUpdate();
 
-            String columnaObligatoria = """
+            String consultarCliente = """
                 SELECT 1 FROM information_schema.COLUMNS
                 WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = 'pasajero'
                   AND COLUMN_NAME = 'cliente' AND IS_NULLABLE = 'NO'
                 """;
 
-            boolean requiereMigracion;
-            try (PreparedStatement consulta = conn.prepareStatement(columnaObligatoria);
+            boolean requiereCuenta;
+            try (PreparedStatement consulta = conn.prepareStatement(consultarCliente);
                  ResultSet resultado = consulta.executeQuery()) {
-                requiereMigracion = resultado.next();
+                requiereCuenta = resultado.next();
             }
 
-            if (requiereMigracion) {
-                try (PreparedStatement migracion = conn.prepareStatement(
+            if (requiereCuenta) {
+                try (PreparedStatement cuenta = conn.prepareStatement(
                         "ALTER TABLE Pasajero MODIFY COLUMN cliente VARCHAR(50) NULL")) {
-                    migracion.executeUpdate();
+                    cuenta.executeUpdate();
                 }
             }
 
