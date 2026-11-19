@@ -74,10 +74,9 @@ public abstract class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" +
-                "nombreUsuario='" + nombreUsuario + '\'' +
-                ", sesionActiva=" + sesionActiva +
-                ", tipo=" + tipo +
-                '}';
+        return "-----USUARIO-----\n" +
+                "Nombre de usuario: " + nombreUsuario + "\n" +
+                "Sesion activa: " + sesionActiva + "\n" +
+                "Tipo: " + tipo + "\n";
     }
 }

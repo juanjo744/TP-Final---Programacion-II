@@ -1,14 +1,8 @@
 package Models;
 
 import Enums.TipoUsuario;
-import Exceptions.JDBCException;
-import Exceptions.VOcupacionInvalidaException;
-import Exceptions.VPasajeroInvalidoException;
-import Exceptions.VReservaInvalidaException;
-import Gestor.GestorHabitaciones;
-import Gestor.GestorOcupaciones;
-import Gestor.GestorPasajeros;
-import Gestor.GestorReservas;
+import Exceptions.*;
+import Gestor.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,13 +13,15 @@ public class Recepcionista extends Usuario {
     private GestorHabitaciones gestorHabitaciones;
     private GestorOcupaciones gestorOcupaciones;
     private GestorPasajeros gestorPasajeros;
+    private GestorUsuarios gestorUsuarios;
 
-    public Recepcionista(String nombreUsuario, String contrasenia, GestorHabitaciones gestorHabitaciones, GestorReservas gestorReservas, GestorOcupaciones gestorOcupaciones, GestorPasajeros gestorPasajeros) {
+    public Recepcionista(String nombreUsuario, String contrasenia, GestorReservas gestorReservas, GestorHabitaciones gestorHabitaciones, GestorOcupaciones gestorOcupaciones, GestorPasajeros gestorPasajeros, GestorUsuarios gestorUsuarios) {
         super(nombreUsuario, contrasenia, TipoUsuario.RECEPCIONISTA);
-        this.gestorHabitaciones = gestorHabitaciones;
         this.gestorReservas = gestorReservas;
+        this.gestorHabitaciones = gestorHabitaciones;
         this.gestorOcupaciones = gestorOcupaciones;
         this.gestorPasajeros = gestorPasajeros;
+        this.gestorUsuarios = gestorUsuarios;
     }
 
     public Ocupacion realizarCheckIn(Reserva reserva) throws JDBCException, VOcupacionInvalidaException {
@@ -53,10 +49,11 @@ public class Recepcionista extends Usuario {
 
     }
 
-
     public List<Habitacion> estadoHabitaciones() throws JDBCException {
         return gestorHabitaciones.listar();
     }
 
-
+    public void crearCliente(Cliente cliente) throws ValidacionException, JDBCException {
+        gestorUsuarios.cargarElemento(cliente);
+    }
 }

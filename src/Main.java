@@ -71,6 +71,7 @@ public class Main { public static void main(String[] args){
             case ADMINISTRADOR ->
             {
                 Administrador administrador = (Administrador) usuario;
+                administrador.iniciarSesion();
                 do {
                     try {
 
@@ -93,7 +94,7 @@ public class Main { public static void main(String[] args){
                             String nombreUsuarioN = scanner.nextLine();
                             System.out.println("Contraseña: ");
                             String contraseniaN = scanner.nextLine();
-                            System.out.println("Defina el tipo de usuario." +
+                            System.out.println("Defina el tipo de usuario.\n" +
                                     "1 - Administrador.\n" +
                                     "2 - Recepcionista.\n" +
                                     "3 - Cliente.\n");
@@ -111,8 +112,8 @@ public class Main { public static void main(String[] args){
                                 }
                                 case 2:
                                 {
-                                    Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorHabitaciones,
-                                            gestorReservas, gestorOcupaciones, gestorPasajeros);
+                                    Usuario usuario1 = new Recepcionista(nombreUsuarioN, contraseniaN, gestorReservas,
+                                            gestorHabitaciones, gestorOcupaciones, gestorPasajeros, gestorUsuarios);
                                     administrador.crearUsuario(usuario1);
                                     break;
                                 }
@@ -145,9 +146,9 @@ public class Main { public static void main(String[] args){
                             String identificador = scanner.nextLine();
 
                             Usuario usuarioActualizar = administrador.getGestorUsuarios().buscarPorID(identificador);
-                            System.out.println("Defina su nuevo tipo: " +
-                                    "1 - Administrador" +
-                                    "2 - Recepcionista" +
+                            System.out.println("Defina su nuevo tipo:\n" +
+                                    "1 - Administrador\n" +
+                                    "2 - Recepcionista\n" +
                                     "3 - Cliente");
                             int opcActUs = scanner.nextInt();
                             scanner.nextLine();
@@ -242,6 +243,7 @@ public class Main { public static void main(String[] args){
 
             {
                 Recepcionista recepcionista = (Recepcionista) usuario;
+                recepcionista.iniciarSesion();
                 do {
                     System.out.println("Menu: RECEPCIONISTA");
                     System.out.println("1. Realizar Check-Ins.");
@@ -250,7 +252,8 @@ public class Main { public static void main(String[] args){
                     System.out.println("4. Gestionar habitaciones.");
                     System.out.println("5. Gestionar reservas.");
                     System.out.println("6. Gestionar ocupaciones");
-                    System.out.println("7. Volver atrás.");
+                    System.out.println("7. Crear Cliente.");
+                    System.out.println("8. Volver atrás.");
                     try {
                     opc = scanner.nextInt();
 
@@ -1064,16 +1067,30 @@ public class Main { public static void main(String[] args){
 
                             break;
                         }
+                        case 7: {
+                            scanner.nextLine();
+                            System.out.println("Defina los datos de nuevo usuario...");
+                            System.out.println("Nombre de usuario: ");
+                            String nombreUsuarioN = scanner.nextLine();
+                            System.out.println("Contraseña: ");
+                            String contraseniaN = scanner.nextLine();
+                            Cliente cliente = new Cliente(nombreUsuarioN, contraseniaN, gestorReservas, gestorOcupaciones);
+
+                            System.out.println("------------CREACIÓN DE USUARIO------------");
+                            recepcionista.crearCliente(cliente);
+                            break;
+                        }
                     }
                     } catch (InputMismatchException ex) {
                         scanner.nextLine();
                         System.out.println("Debe ingresar un numero valido. Intente nuevamente.");
                     }
-                } while (opc != 7);
+                } while (opc != 8);
             }
 
             case CLIENTE -> {
                 Cliente cliente = (Cliente) usuario;
+                cliente.iniciarSesion();
                 int opcionCliente;
 
                 do {

@@ -45,7 +45,7 @@ public class GestorReservas extends GestorGenerico<Reserva, Integer> {
         if (!reserva.getFechaFin().isAfter(reserva.getFechaInicio())){
             throw new VReservaInvalidaException("La fecha de fin tiene que ser posterior a la de inicio.");
         }
-        if (reserva.getFechaInicio().isAfter(LocalDate.now()) || reserva.getFechaFin().isAfter(LocalDate.now()))
+        if (reserva.getFechaInicio().isBefore(LocalDate.now()) || reserva.getFechaFin().isBefore(LocalDate.now()))
         {
             throw new VReservaInvalidaException("No puedes crear reservas para el pasado.");
         }

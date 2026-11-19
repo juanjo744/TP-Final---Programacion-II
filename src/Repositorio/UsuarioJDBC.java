@@ -96,7 +96,7 @@ public class UsuarioJDBC implements IHotelJDBC<Usuario, String> {
                             return new Administrador(nombre, null, gestorUsuarios);
 
                         case RECEPCIONISTA:
-                            return new Recepcionista(nombre, null, gestorHabitaciones, gestorReservas, gestorOcupaciones, gestorPasajeros);
+                            return new Recepcionista(nombre, null, gestorReservas, gestorHabitaciones, gestorOcupaciones, gestorPasajeros, gestorUsuarios);
 
                         default:
                             throw new JDBCException("Tipo de usuario desconocido.");

@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class DBBackup {
-    private String ejecutable = "C:\\Users\\Juan\\Documents";
-    private String mibd = "mibd";
+    private String ejecutable = "C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysqldump.exe";
+    private String mibd = "tp7_agregacion";
     private int numero = 0;
     private Path carpeta = Path.of("Backups").toAbsolutePath();
 
@@ -20,7 +20,7 @@ public class DBBackup {
 
         Path archivo = carpeta.resolve("backup_" + fecha + "-" + numero + ".sql");
         numero++;
-        
+
         ProcessBuilder constructor = new ProcessBuilder(ejecutable, "--login-path=hotel", "--single-transaction", "--result-file=" + archivo, mibd);
 
         constructor.inheritIO();
